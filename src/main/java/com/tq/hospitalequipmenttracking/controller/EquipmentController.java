@@ -1,5 +1,7 @@
 package com.tq.hospitalequipmenttracking.controller;
 
+import com.tq.hospitalequipmenttracking.dto.request.CreateEquipmentRequest;
+import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
 import com.tq.hospitalequipmenttracking.model.Equipment;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
 import com.tq.hospitalequipmenttracking.model.UpdateStatusRequest;
@@ -20,23 +22,23 @@ public class EquipmentController {
     }
 
     @GetMapping
-    public List<Equipment> getAllEquipments() {
+    public List<EquipmentResponse> getAllEquipments() {
         return equipmentService.getAllEquipments();
     }
 
     @PostMapping
-    public Equipment addEquipment(@RequestBody Equipment equipment) {
-        return equipmentService.addEquipment(equipment);
+    public EquipmentResponse addEquipment(@RequestBody CreateEquipmentRequest request) {
+        return equipmentService.addEquipment(request);
     }
 
     @GetMapping("/status/{status}")
-    public List<Equipment> getEquipmentByStatus(@PathVariable EquipmentStatus status) {
+    public List<EquipmentResponse> getEquipmentByStatus(@PathVariable EquipmentStatus status) {
         return equipmentService.getEquipmentByStatus(status);
     }
 
     // 这里用DTO:UpdateStatusRequest request
     @PutMapping("/{id}/status")
-    public Equipment updateEquipmentStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
-        return equipmentService.updateStatus(id,request.getStatus());
+    public EquipmentResponse updateEquipmentStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
+        return equipmentService.updateEquipmentStatus(id,request.getStatus());
     }
 }
