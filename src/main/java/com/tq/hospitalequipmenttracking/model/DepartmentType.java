@@ -5,6 +5,7 @@ public enum DepartmentType {
     CSPD,
     PRE_OP,
     RADIOLOGY,
+    ICU,
     MATERIALS_MANAGEMENT,
     EVS,
     PHARMACY,

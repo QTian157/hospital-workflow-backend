@@ -1,7 +1,9 @@
 package com.tq.hospitalequipmenttracking.controller;
 
 import com.tq.hospitalequipmenttracking.dto.request.CreateEquipmentRequest;
+import com.tq.hospitalequipmenttracking.dto.request.MoveEquipmentRequest;
 import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
+import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
 import com.tq.hospitalequipmenttracking.model.Equipment;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
 import com.tq.hospitalequipmenttracking.model.UpdateStatusRequest;
@@ -36,9 +38,26 @@ public class EquipmentController {
         return equipmentService.getEquipmentByStatus(status);
     }
 
+    @GetMapping("/id/{id}")
+    public EquipmentResponse getEquipmentById(@PathVariable Long id) {
+        return equipmentService.getEquipmentById(id);
+    }
+
     // 这里用DTO:UpdateStatusRequest request
     @PutMapping("/{id}/status")
     public EquipmentResponse updateEquipmentStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
         return equipmentService.updateEquipmentStatus(id,request.getStatus());
+    }
+
+    @PostMapping("/{id}/move")
+    public EquipmentResponse moveEquipment(@PathVariable Long id, @RequestBody MoveEquipmentRequest request) {
+
+//        System.out.println("=== move endpoint id = " + id);
+        return equipmentService.moveEquipment(id, request);
+    }
+
+    @GetMapping("/{id}/history")
+    public List<MovementHistoryResponse> getMovementHistoryByEquipmentId(@PathVariable Long id){
+        return equipmentService.getMovementHistoryByEquipmentId(id);
     }
 }

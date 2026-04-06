@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // key for debug
         Map<String, Object> response = new HashMap<>();
         response.put("code", 500);
         response.put("message", "Internal server error");
