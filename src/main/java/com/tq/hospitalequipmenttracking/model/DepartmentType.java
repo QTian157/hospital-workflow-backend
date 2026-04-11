@@ -1,6 +1,10 @@
 package com.tq.hospitalequipmenttracking.model;
 
-public enum DepartmentType {
+public enum
+
+
+
+DepartmentType {
     SURGERY,
     CSPD,
     PRE_OP,

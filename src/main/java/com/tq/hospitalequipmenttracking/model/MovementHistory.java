@@ -41,10 +41,10 @@ public class MovementHistory {
     @JoinColumn(name = "to_department_id")
     private Department toDepartment;
 
-    LocalDateTime movedAt;
+    private LocalDateTime movedAt;
 
-    String movedBy;
-    String notes;
+    private String movedBy;
+    private String notes;
 
     public Long getId() {
         return id;

@@ -37,6 +37,7 @@ public class Equipment {
     private LocalDate purchaseDate;
     private LocalDate lastMaintenanceDate;
 
+
     // getter & setter
     public Long getId() {
         return id;

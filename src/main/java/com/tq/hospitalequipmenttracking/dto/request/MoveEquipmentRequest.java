@@ -1,9 +1,13 @@
 package com.tq.hospitalequipmenttracking.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class MoveEquipmentRequest {
 //    private Long equipmentId; put in the url not body
     private Long toRoomId;
     private Long toDepartmentId;
+
+    @NotBlank(message = "MovedBy cannot be blank")
     private String movedBy;
     private String notes;
 

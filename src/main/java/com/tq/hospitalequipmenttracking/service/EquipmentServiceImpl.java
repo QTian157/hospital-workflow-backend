@@ -2,20 +2,23 @@ package com.tq.hospitalequipmenttracking.service;
 
 import com.tq.hospitalequipmenttracking.dto.request.CreateEquipmentRequest;
 import com.tq.hospitalequipmenttracking.dto.request.MoveEquipmentRequest;
+import com.tq.hospitalequipmenttracking.dto.request.StatusActionRequest;
+import com.tq.hospitalequipmenttracking.dto.request.UpdateEquipmentStatusRequest;
 import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
 import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
+import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
 import com.tq.hospitalequipmenttracking.exception.BadRequestException;
 import com.tq.hospitalequipmenttracking.exception.ResourceNotFoundException;
 import com.tq.hospitalequipmenttracking.model.*;
-import com.tq.hospitalequipmenttracking.repository.DepartmentRepository;
-import com.tq.hospitalequipmenttracking.repository.EquipmentRepository;
-import com.tq.hospitalequipmenttracking.repository.MovementHistoryRepository;
-import com.tq.hospitalequipmenttracking.repository.RoomRepository;
+import com.tq.hospitalequipmenttracking.repository.*;
+import com.tq.hospitalequipmenttracking.validation.EquipmentMoveValidator;
+import com.tq.hospitalequipmenttracking.validation.EquipmentStatusTransitionValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,14 +29,17 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final RoomRepository roomRepository;
 
     private final MovementHistoryRepository movementHistoryRepository;
+    private final EquipmentStatusHistoryRepository equipmentStatusHistoryRepository;
 
-    public EquipmentServiceImpl(EquipmentRepository equipmentRepository, DepartmentRepository departmentRepository, RoomRepository roomRepository, MovementHistoryRepository movementHistoryRepository) {
+    public EquipmentServiceImpl(EquipmentRepository equipmentRepository, DepartmentRepository departmentRepository, RoomRepository roomRepository, MovementHistoryRepository movementHistoryRepository, EquipmentStatusHistoryRepository equipmentStatusHistoryRepository) {
         this.equipmentRepository = equipmentRepository;
         this.departmentRepository = departmentRepository;
         this.roomRepository = roomRepository;
         this.movementHistoryRepository = movementHistoryRepository;
+        this.equipmentStatusHistoryRepository = equipmentStatusHistoryRepository;
     }
     @Override
+    @Transactional(readOnly = true)
     public List<EquipmentResponse> getAllEquipments() {
         return equipmentRepository.findAll()
                 .stream()
@@ -43,11 +49,21 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public EquipmentResponse addEquipment(CreateEquipmentRequest request) {
-
+        if (request.getStatus() != EquipmentStatus.AVAILABLE) {
+            throw new BadRequestException("New equipment must start with AVAILABLE status");
+        }
         Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException( "Department not found with id: " + request.getDepartmentId()));
+                .orElseThrow(() -> new ResourceNotFoundException( "Department  not found with id: " + request.getDepartmentId()));
         Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new ResourceNotFoundException( "Department not found with id: " + request.getRoomId()));
+                .orElseThrow(() -> new ResourceNotFoundException( "Room not found with id: " + request.getRoomId()));
+
+        if (room.getDepartment() == null) {
+            throw new BadRequestException("Room doesn't belong to any department.");
+        };
+        // check the consistency of room and department
+        if (!room.getDepartment().getId().equals(department.getId())) {
+            throw new BadRequestException("Room doesn't belong to the specific department.");
+        }
 
         Equipment equipment = new Equipment();
         equipment.setName(request.getName());
@@ -66,7 +82,9 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     }
     @Override
+    @Transactional(readOnly = true)
     public List<EquipmentResponse> getEquipmentByStatus(EquipmentStatus status) {
+        if  (status == null) {throw new BadRequestException("Status cannot be null.");}
         return equipmentRepository.findByStatus(status)
                 .stream()
                 .map(this::mapToResponse)
@@ -74,15 +92,22 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public EquipmentResponse updateEquipmentStatus(Long id, EquipmentStatus newStatus){
-        if (newStatus == null) {
-            throw new BadRequestException("Status cannot be null.");
-        }
+    @Transactional
+    public EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request){
 
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
-        if (equipment.getStatus().equals(newStatus)) {
-            throw new BadRequestException("Status is already " + newStatus);
+
+        EquipmentStatus curStatus = equipment.getStatus();
+        EquipmentStatus newStatus = request.getNewStatus();
+
+        if (!EquipmentStatusTransitionValidator.isValidTransition(curStatus, newStatus)) {
+            throw new BadRequestException(
+                    "Invalid status transition from " + curStatus
+                            + " to " + newStatus
+                            + ". Allowed next statuses: "
+                            + EquipmentStatusTransitionValidator.getAllowedNextStatuses(curStatus)
+            );
         }
         equipment.setStatus(newStatus);
         Equipment updateEquipment = equipmentRepository.save(equipment);
@@ -110,6 +135,7 @@ public class EquipmentServiceImpl implements EquipmentService {
                 equipment.getDepartment() != null ? equipment.getDepartment().getName() : null,
                 equipment.getCurrentRoom()!= null ? equipment.getCurrentRoom().getId() : null,
                 equipment.getCurrentRoom() != null ? equipment.getCurrentRoom().getName() : null
+
         );
     }
 
@@ -122,52 +148,37 @@ public class EquipmentServiceImpl implements EquipmentService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + equipmentId));
 
-        // 1.move to room
-        boolean hasRoom = request.getToRoomId() != null;
-
-        //2. move to department only
-        boolean hasDepartment = request.getToDepartmentId() != null;
-
-        if (hasRoom == hasDepartment) {
-            throw new BadRequestException("Exactly one of toRoomId or toDepartmentId must be provided");
-        }
+        // 1. Validate that exactly one target is provided: room or department
+        EquipmentMoveValidator.validateMoveRequest(request.getToRoomId(), request.getToDepartmentId());
 
         Room fromRoom = equipment.getCurrentRoom();
         Department fromDepartment = equipment.getDepartment();
 
         Room toRoom = null;
         Department toDepartment = null;
-        if (hasRoom) {
+
+        if (request.getToRoomId() != null) {
             toRoom = roomRepository.findById(request.getToRoomId())
                     .orElseThrow(() -> new ResourceNotFoundException("Room not found with id: " + request.getToRoomId()));
-
-            validateRoom(toRoom);
+        // 2. check room correctness/ rooms difference
+            EquipmentMoveValidator.validateTargetRoom(toRoom);
+            EquipmentMoveValidator.validateNotSameRoom(fromRoom, toRoom);
 
             toDepartment = toRoom.getDepartment();
 
-            if (fromRoom != null && fromRoom.getId().equals(toRoom.getId())) {
-                throw new BadRequestException("Equipment is already in room id " + toRoom.getId());
-            }
         } else {
             toDepartment = departmentRepository.findById(request.getToDepartmentId())
                     .orElseThrow(() -> new  ResourceNotFoundException("Department not found with id: " + request.getToDepartmentId()));
 
-            toRoom = null;
-            if (fromRoom == null &&
-                    fromDepartment != null &&
-                    fromDepartment.getId().equals(toDepartment.getId())) {
-                throw new BadRequestException("Equipment is already in department id " + toDepartment.getId());
-            }
+            // 3. For department-only moves, prevent moving to the same department when no room is assigned
+            EquipmentMoveValidator.validateNotSameDepartmentWhenNoRoom(fromRoom, fromDepartment, toDepartment);
+
         }
 
-        // Bussiness Rule
-        validateMoveBusinessRules(equipment, toDepartment);
-
-
-//        if(toRoom.getDepartment() == null){
-//            throw new BadRequestException("Target room is not associate with any department");
-//        }
-
+        // 4. Business rules
+        EquipmentMoveValidator.validateMoveableStatus(equipment);
+        EquipmentMoveValidator.validateMobility(equipment, fromRoom, toRoom);
+        EquipmentMoveValidator.validateDepartmentCompatibility(equipment, toDepartment);
 
         equipment.setCurrentRoom(toRoom);
         equipment.setDepartment(toDepartment);
@@ -188,27 +199,6 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         return mapToResponse(updatedEquipment);
     }
-
-    private void validateRoom(Room room){
-        if(room.getDepartment() == null){
-            throw new BadRequestException("Target room is not associated with any department");
-        }
-    }
-
-    private void validateMoveBusinessRules(Equipment equipment, Department toDepartment){
-        if (equipment.getStatus() != EquipmentStatus.AVAILABLE){
-            throw new BadRequestException("Only AVAILABLE equipment can be requested to move");
-        }
-        if (equipment.getCategory() == EquipmentCategory.IMAGING && toDepartment.getType() != DepartmentType.RADIOLOGY) {
-            throw new BadRequestException("IMAGING equipment can only be requested to move to RADIOLOGY");
-        }
-        if (equipment.getCategory() == EquipmentCategory.STERILE_PROCESSING
-                && toDepartment.getType() != DepartmentType.CSPD) {
-            throw new BadRequestException("STERILE_PROCESSING equipment can only be request to move to CSPD");
-        }
-
-    }
-
 
     @Override
     public List<MovementHistoryResponse> getMovementHistoryByEquipmentId(Long equipmentId) {
@@ -237,69 +227,126 @@ public class EquipmentServiceImpl implements EquipmentService {
                 );
     }
 
-//    private static final Set<String> ALLOWED_STATUSES = Set.of("AVAILABLE", "IN_USE", "CLEANING", "MAINTENANCE");
 
-//    public List<Equipment> getAllEquipments() {
-//        return equipmentRepository.findAll();
-//    }
-//
-//    public Equipment addEquipment(Equipment equipment) {
-//        return equipmentRepository.save(equipment);
-//    }
-//
-//    public List<Equipment> getEquipmentByStatus(EquipmentStatus status) {
-//        return equipmentRepository.findByStatus(status);
-//    }
-//
-//    public Equipment updateStatus(Long id, EquipmentStatus newStatus){
-//        if (newStatus == null) {
-//            throw new BadRequestException("Status cannot be null.");
-//        }
-//
-//        Equipment equipment = equipmentRepository.findById(id)
-//                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
-//        if (equipment.getStatus().equals(newStatus)) {
-//            throw new BadRequestException("Status is already " + newStatus);
-//        }
-//        equipment.setStatus(newStatus);
-//        return equipmentRepository.save(equipment);
-//    }
+    private EquipmentResponse changeStatus( Long equipmentId, StatusAction action, String notes){
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + equipmentId));
 
-/**
-    public Equipment updateStatus(Long id, EquipmentStatus newStatus) {
+        EquipmentStatus currentStatus = equipment.getStatus();
+
+        Set<EquipmentStatus> allowedStatuses =  EquipmentStateMachine.ALLOW_TRANSITIONS.get(action);
+        if (allowedStatuses == null || !allowedStatuses.contains(currentStatus)) {
+            throw new BadRequestException("Cannot perform action " + action + " when equipment status is " + currentStatus);
+        }
+        EquipmentStatus newStatus =  EquipmentStateMachine.TARGET_STATUS.get(action);
         if (newStatus == null) {
-//            throw new IllegalArgumentException("Status cannot be null.");
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Status cannot be null."
-            );
+            throw new BadRequestException("No target status defined for action: " + action);
         }
-
-//        if (!ALLOWED_STATUSES.contains(normalizedStatus)) {
-//            throw new IllegalArgumentException("Invalid status: " + newStatus);
-//        }
-
-
-        Equipment equipment = equipmentRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Equipment not found with id: " + id));
-
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Equipment not found with id: " + id)
-                );
-
-        if (equipment.getStatus().equals(newStatus)) {
-//            throw new IllegalArgumentException("Status is already" + newStatus);
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Status is already" + newStatus
-            );
-        }
-
         equipment.setStatus(newStatus);
-        return equipmentRepository.save(equipment);
+        equipmentRepository.save(equipment);
+
+        EquipmentStatusHistory history = new  EquipmentStatusHistory();
+        history.setEquipment(equipment);
+        history.setFromStatus(currentStatus);
+        history.setToStatus(newStatus);
+        history.setAction(action);
+        history.setNotes(notes);
+        history.setChangedAt(LocalDateTime.now());
+
+        equipmentStatusHistoryRepository.save(history);
+
+        return mapToResponse(equipment);
+
     }
- */
+    @Override
+    @Transactional
+    public EquipmentResponse startUse(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.START_USE,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse markDirty(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.MARK_DIRTY,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse startCleaning(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.START_CLEANING,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse markSterile(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.MARK_STERILE,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse returnToAvailable(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.RETURN_TO_AVAILABLE,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.SEND_TO_MAINTENANCE,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    @Transactional
+    public EquipmentResponse completeMaintenance(Long id, StatusActionRequest request) {
+        return changeStatus(
+                id,
+                StatusAction.COMPLETE_MAINTENANCE,
+                request != null ? request.getNotes() : null
+        );
+    }
+
+    @Override
+    public List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(Long equipmentId){
+        return equipmentStatusHistoryRepository.findByEquipmentIdOrderByChangedAtDesc(equipmentId)
+                .stream()
+                .map(this::mapToStatusHistoryResponse)
+                .toList();
+
+    }
+
+    private UpdateHistoryResponse mapToStatusHistoryResponse(EquipmentStatusHistory history){
+        return new UpdateHistoryResponse(
+                history.getId(),
+                history.getEquipment() != null ? history.getEquipment().getId():null,
+                history.getFromStatus()!= null ?  history.getFromStatus():null,
+                history.getToStatus() != null ? history.getToStatus():null,
+                history.getAction() ,
+                history.getNotes(),
+                history.getChangedAt()
+        );
+
+    }
 }

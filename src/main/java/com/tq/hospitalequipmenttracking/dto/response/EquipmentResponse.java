@@ -20,6 +20,7 @@ public class EquipmentResponse {
     private final Long roomId;
     private final String roomName;
 
+
     // ⭐ 构造函数（核心）
     public EquipmentResponse(Long id,
                              String name,

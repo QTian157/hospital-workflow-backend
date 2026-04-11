@@ -1,9 +1,9 @@
 package com.tq.hospitalequipmenttracking.model;
 
 public enum EquipmentCategory {
-    PROCEDURE,
-    MOBILE,
     IMAGING,
+    PROCEDURE,
+    LIFE_SUPPORT,
     STERILE_PROCESSING,
-    SUPPORT
+    LOGISTICS
 }
