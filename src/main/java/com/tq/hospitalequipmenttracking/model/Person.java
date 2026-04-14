@@ -9,8 +9,12 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String firstName;
-    private String lastNmae;
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(unique = true)
     private String EmployeeId;
 
     @Enumerated(EnumType.STRING)
@@ -18,6 +22,62 @@ public class Person {
     private PersonRole role; // NURSE, DOCTOR, TECHNICIAN, STAFF
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
     private Department department;
+    @Column(nullable = false)
     private boolean active;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmployeeId() {
+        return EmployeeId;
+    }
+
+    public PersonRole getRole() {
+        return role;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastNmae(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        EmployeeId = employeeId;
+    }
+
+    public void setRole(PersonRole role) {
+        this.role = role;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+
 }

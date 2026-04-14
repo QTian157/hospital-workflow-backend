@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name ="movement_histories")
-public class MovementHistory {
+public class EquipmentMovementHistory {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

@@ -1,9 +1,7 @@
 package com.tq.hospitalequipmenttracking.controller;
 
-import com.tq.hospitalequipmenttracking.dto.request.CreateEquipmentRequest;
-import com.tq.hospitalequipmenttracking.dto.request.MoveEquipmentRequest;
-import com.tq.hospitalequipmenttracking.dto.request.StatusActionRequest;
-import com.tq.hospitalequipmenttracking.dto.request.UpdateEquipmentStatusRequest;
+import com.tq.hospitalequipmenttracking.dto.request.*;
+import com.tq.hospitalequipmenttracking.dto.response.EquipmentAssignmentHistoryResponse;
 import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
 import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
 import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
@@ -140,6 +138,24 @@ public class EquipmentController {
     @GetMapping("/{id}/status-history")
     public List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(@PathVariable Long id){
         return equipmentService.getUpdateHistoryByEquipmentId(id);
+    }
+
+    @PostMapping("/{id}/assign")
+    public EquipmentResponse assignEquipment(@PathVariable Long id,
+                                             @Valid @RequestBody AssignEquipmentRequest request) {
+        return equipmentService.assignEquipment(id, request);
+    }
+
+    @PostMapping("/{id}/unassign")
+    public EquipmentResponse unassignEquipment(@PathVariable Long id,
+                                               @RequestBody(required = false) AssignmentActionRequest request) {
+        return equipmentService.unassignEquipment(id, request);
+    }
+
+
+    @GetMapping("/{id}/assignment-history")
+    public List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(@PathVariable Long id) {
+        return equipmentService.getAssignmentHistory(id);
     }
 
 }

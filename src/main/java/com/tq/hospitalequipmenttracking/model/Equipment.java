@@ -3,6 +3,7 @@ package com.tq.hospitalequipmenttracking.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "equipments")
@@ -36,6 +37,10 @@ public class Equipment {
 
     private LocalDate purchaseDate;
     private LocalDate lastMaintenanceDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Person assignedPerson;
+    private LocalDateTime assignedAt;
 
 
     // getter & setter
@@ -119,5 +124,21 @@ public class Equipment {
     }
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    public Person getAssignedPerson() {
+        return assignedPerson;
+    }
+
+    public LocalDateTime getAssignedAt() {
+        return assignedAt;
+    }
+
+    public void setAssignedPerson(Person assignedPerson) {
+        this.assignedPerson = assignedPerson;
+    }
+
+    public void setAssignedAt(LocalDateTime assignedAt) {
+        this.assignedAt = assignedAt;
     }
 }

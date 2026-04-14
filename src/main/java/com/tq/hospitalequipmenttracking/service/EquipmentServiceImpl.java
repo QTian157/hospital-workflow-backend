@@ -1,9 +1,7 @@
 package com.tq.hospitalequipmenttracking.service;
 
-import com.tq.hospitalequipmenttracking.dto.request.CreateEquipmentRequest;
-import com.tq.hospitalequipmenttracking.dto.request.MoveEquipmentRequest;
-import com.tq.hospitalequipmenttracking.dto.request.StatusActionRequest;
-import com.tq.hospitalequipmenttracking.dto.request.UpdateEquipmentStatusRequest;
+import com.tq.hospitalequipmenttracking.dto.request.*;
+import com.tq.hospitalequipmenttracking.dto.response.EquipmentAssignmentHistoryResponse;
 import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
 import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
 import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
@@ -31,12 +29,27 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final MovementHistoryRepository movementHistoryRepository;
     private final EquipmentStatusHistoryRepository equipmentStatusHistoryRepository;
 
-    public EquipmentServiceImpl(EquipmentRepository equipmentRepository, DepartmentRepository departmentRepository, RoomRepository roomRepository, MovementHistoryRepository movementHistoryRepository, EquipmentStatusHistoryRepository equipmentStatusHistoryRepository) {
+    private final PersonRepository personRepository;
+    private final EquipmentAssignmentHistoryRepository equipmentAssignmentHistoryRepository;
+
+    public EquipmentServiceImpl(
+            EquipmentRepository equipmentRepository,
+            DepartmentRepository departmentRepository,
+            RoomRepository roomRepository,
+            MovementHistoryRepository movementHistoryRepository,
+            EquipmentStatusHistoryRepository equipmentStatusHistoryRepository,
+            PersonRepository personRepository,
+            EquipmentAssignmentHistoryRepository equipmentAssignmentHistoryRepository)
+    {
         this.equipmentRepository = equipmentRepository;
         this.departmentRepository = departmentRepository;
         this.roomRepository = roomRepository;
         this.movementHistoryRepository = movementHistoryRepository;
         this.equipmentStatusHistoryRepository = equipmentStatusHistoryRepository;
+        this.personRepository = personRepository;
+        this.equipmentAssignmentHistoryRepository = equipmentAssignmentHistoryRepository;
+
+
     }
     @Override
     @Transactional(readOnly = true)
@@ -122,6 +135,18 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     private EquipmentResponse mapToResponse(Equipment equipment) {
+        Person person = equipment.getAssignedPerson();
+        Long personId = person != null ? person.getId() : null;
+        String personName = person != null ? person.getFirstName() +" " + person.getLastName() : null;
+
+        Department department = equipment.getDepartment();
+        Long departmentId = department != null ? department.getId() : null;
+        String departmentName = department != null ? department.getName() : null;
+
+        Room room = equipment.getCurrentRoom();
+        Long roomId = room != null ? room.getId() : null;
+        String roomName = room != null ? room.getName() : null;
+
         return new EquipmentResponse(
                 equipment.getId(),
                 equipment.getName(),
@@ -131,14 +156,12 @@ public class EquipmentServiceImpl implements EquipmentService {
                 equipment.isMobile(),
                 equipment.getAssetTag(),
                 equipment.getSerialNumber(),
-                equipment.getDepartment() != null ? equipment.getDepartment().getId() : null,
-                equipment.getDepartment() != null ? equipment.getDepartment().getName() : null,
-                equipment.getCurrentRoom()!= null ? equipment.getCurrentRoom().getId() : null,
-                equipment.getCurrentRoom() != null ? equipment.getCurrentRoom().getName() : null
-
+                departmentId, departmentName,
+                roomId, roomName,
+                personId, personName,
+                equipment.getAssignedAt() != null ? equipment.getAssignedAt() : null
         );
     }
-
     @Override
     @Transactional
     // 1. move to room, frontend passes "toRoomId"
@@ -185,17 +208,17 @@ public class EquipmentServiceImpl implements EquipmentService {
         Equipment updatedEquipment = equipmentRepository.save(equipment);
 
 
-        MovementHistory movementHistory = new MovementHistory();
-        movementHistory.setEquipment(updatedEquipment);
-        movementHistory.setFromRoom(fromRoom);
-        movementHistory.setToRoom(toRoom);
-        movementHistory.setFromDepartment(fromDepartment);
-        movementHistory.setToDepartment(toDepartment);
-        movementHistory.setMovedAt(LocalDateTime.now());
-        movementHistory.setMovedBy(request.getMovedBy());
-        movementHistory.setNotes(request.getNotes());
+        EquipmentMovementHistory equipmentMovementHistory = new EquipmentMovementHistory();
+        equipmentMovementHistory.setEquipment(updatedEquipment);
+        equipmentMovementHistory.setFromRoom(fromRoom);
+        equipmentMovementHistory.setToRoom(toRoom);
+        equipmentMovementHistory.setFromDepartment(fromDepartment);
+        equipmentMovementHistory.setToDepartment(toDepartment);
+        equipmentMovementHistory.setMovedAt(LocalDateTime.now());
+        equipmentMovementHistory.setMovedBy(request.getMovedBy());
+        equipmentMovementHistory.setNotes(request.getNotes());
 
-        movementHistoryRepository.save(movementHistory);
+        movementHistoryRepository.save(equipmentMovementHistory);
 
         return mapToResponse(updatedEquipment);
     }
@@ -208,7 +231,7 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .toList();
 
     }
-    private MovementHistoryResponse mapToMovementHistoryResponse(MovementHistory history) {
+    private MovementHistoryResponse mapToMovementHistoryResponse(EquipmentMovementHistory history) {
         return new MovementHistoryResponse(
                 history.getId(),
                 history.getEquipment() != null ? history.getEquipment().getId():null,
@@ -347,6 +370,115 @@ public class EquipmentServiceImpl implements EquipmentService {
                 history.getNotes(),
                 history.getChangedAt()
         );
-
     }
+
+    @Override
+    @Transactional
+    public EquipmentResponse assignEquipment(Long equipmentId, AssignEquipmentRequest request){
+        Equipment equipment = findEquipmentByIDOrThrow(equipmentId);
+        Person person = findPersonByIDOrThrow(request.getPersonId());
+
+        validatePersonCanBeAssigned(person);
+        validateEquipmentCanBeAssigned(equipment);
+        validateEquipmentNotAlreadyAssigned(equipment);
+
+        equipment.setAssignedPerson(person);
+        equipment.setAssignedAt(LocalDateTime.now());
+        AssignmentAction action = AssignmentAction.ASSIGN;
+
+        String notes = request != null ? request.getNotes() : null;
+        EquipmentAssignmentHistory history = buildAssignHistory(equipment, null, person, action, notes);
+        equipmentAssignmentHistoryRepository.save(history);
+        Equipment saveEquipment = equipmentRepository.save(equipment);
+        return mapToResponse(saveEquipment);
+
+    };
+
+    @Override
+    @Transactional
+    public EquipmentResponse unassignEquipment(Long equipmentId, AssignmentActionRequest request){
+        Equipment equipment = findEquipmentByIDOrThrow(equipmentId);
+        Person curPerson = equipment.getAssignedPerson();
+        if (curPerson == null) {
+            throw new BadRequestException("Equipment is not currently assigned.");
+        }
+        String notes = request != null ? request.getNotes() : null;
+        AssignmentAction action = AssignmentAction.UNASSIGN;
+
+        EquipmentAssignmentHistory history = buildAssignHistory(equipment, curPerson, null, action, notes);
+        equipmentAssignmentHistoryRepository.save(history);
+        equipment.setAssignedPerson(null);
+        equipment.setAssignedAt(null);
+        Equipment saveEquipment = equipmentRepository.save(equipment);
+        return mapToResponse(saveEquipment);
+
+    };
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(Long equipmentId){
+        findEquipmentByIDOrThrow(equipmentId);
+        return equipmentAssignmentHistoryRepository.findByEquipmentIdOrderByChangedAtDesc(equipmentId)
+                .stream()
+                .map(this :: mapToAssignmentHistoryResponse)
+                .toList();
+    };
+
+    private Equipment findEquipmentByIDOrThrow(Long equipmentId){
+        return equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id " + equipmentId));
+    }
+    private Person findPersonByIDOrThrow(Long personId){
+        return personRepository.findById(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with id " + personId));
+    }
+    private void validatePersonCanBeAssigned(Person person) {
+        if (!person.isActive()) {
+            throw new BadRequestException("Cannot assign equipment to an inactive person");
+        }
+    };
+    private void validateEquipmentCanBeAssigned(Equipment equipment){
+        if (equipment.getStatus() == EquipmentStatus.UNDER_MAINTENANCE) {
+            throw new  BadRequestException("Equipment in current status cannot be assigned.");
+        }
+    };
+    private void validateEquipmentNotAlreadyAssigned(Equipment equipment){
+        if (equipment.getAssignedPerson() != null) {
+            throw new  BadRequestException("Equipment is already assigned. Unassign it first.");
+        }
+    };
+    private EquipmentAssignmentHistory buildAssignHistory(Equipment equipment, Person fromPerson, Person toPerson, AssignmentAction action, String notes){
+        EquipmentAssignmentHistory history = new EquipmentAssignmentHistory();
+        history.setEquipment(equipment);
+        history.setFromPerson(fromPerson);
+        history.setToPerson(toPerson);
+        history.setAction(action);
+        history.setNotes(notes);
+        history.setChangedAt(LocalDateTime.now());
+        return history;
+    }
+    private EquipmentAssignmentHistoryResponse mapToAssignmentHistoryResponse(EquipmentAssignmentHistory history) {
+        Equipment equipment = history.getEquipment();
+        Long equipmentId = equipment != null ? equipment.getId() : null;
+        String equipmentName = equipment != null ? equipment.getName() : null;
+
+        Person fromPerson = history.getFromPerson();
+        Long fromPersonId = fromPerson != null ?  fromPerson.getId() : null;
+        String fromPersonName = fromPerson != null ? fromPerson.getFirstName() +" " +  fromPerson.getLastName(): null;
+
+        Person toPerson = history.getToPerson();
+        Long toPersonId = toPerson  != null ? toPerson.getId() : null;
+        String toPersonName = toPerson != null ? toPerson.getFirstName() +" " +  toPerson.getLastName(): null;
+
+        return new EquipmentAssignmentHistoryResponse(
+                history.getId(),
+                equipmentId,equipmentName,
+                fromPersonId, fromPersonName,
+                toPersonId,toPersonName,
+                history.getAction() != null ? history.getAction().name() : null,
+                history.getNotes() != null ? history.getNotes() : null,
+                history.getChangedAt()
+        );
+    }
+
 }

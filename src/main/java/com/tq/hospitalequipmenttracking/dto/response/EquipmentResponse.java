@@ -1,6 +1,8 @@
 package com.tq.hospitalequipmenttracking.dto.response;
 import com.tq.hospitalequipmenttracking.model.*;
 
+import java.time.LocalDateTime;
+
 public class EquipmentResponse {
     private final Long id;
     private final String name;
@@ -20,6 +22,10 @@ public class EquipmentResponse {
     private final Long roomId;
     private final String roomName;
 
+    private final Long assignedPersonId;
+    private final String assignedPersonName;
+    private final LocalDateTime assignedAt;
+
 
     // ⭐ 构造函数（核心）
     public EquipmentResponse(Long id,
@@ -33,7 +39,10 @@ public class EquipmentResponse {
                              Long departmentId,
                              String departmentName,
                              Long roomId,
-                             String roomName) {
+                             String roomName,
+                             Long assignedPersonId,
+                             String assignedPersonName,
+                             LocalDateTime assignedAt) {
 
         this.id = id;
         this.name = name;
@@ -47,6 +56,9 @@ public class EquipmentResponse {
         this.departmentName = departmentName;
         this.roomId = roomId;
         this.roomName = roomName;
+        this.assignedPersonId = assignedPersonId;
+        this.assignedPersonName = assignedPersonName;
+        this.assignedAt = assignedAt;
     }
 
     // ⭐ 只保留 getter（没有 setter）
