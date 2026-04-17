@@ -110,4 +110,16 @@ public class EquipmentResponse {
     public String getRoomName() {
         return roomName;
     }
+
+    public Long getAssignedPersonId() {
+        return assignedPersonId;
+    }
+
+    public String getAssignedPersonName() {
+        return assignedPersonName;
+    }
+
+    public LocalDateTime getAssignedAt() {
+        return assignedAt;
+    }
 }

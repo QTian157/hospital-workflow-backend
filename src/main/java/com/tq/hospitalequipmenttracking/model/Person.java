@@ -25,7 +25,7 @@ public class Person {
     @JoinColumn(name = "department_id")
     private Department department;
     @Column(nullable = false)
-    private boolean active;
+    private boolean active; // staff status: hired (true), unhired (false), temporarily hire (false)
 
     public Long getId() {
         return id;

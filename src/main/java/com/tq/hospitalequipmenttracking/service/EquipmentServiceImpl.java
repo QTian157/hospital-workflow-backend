@@ -434,7 +434,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
     private void validatePersonCanBeAssigned(Person person) {
         if (!person.isActive()) {
-            throw new BadRequestException("Cannot assign equipment to an inactive person");
+            throw new BadRequestException("Cannot assign equipment: the selected staff member is inactive or no longer available.");
         }
     };
     private void validateEquipmentCanBeAssigned(Equipment equipment){
