@@ -1,27 +1,32 @@
 package com.tq.hospitalequipmenttracking.controller;
 
 import com.tq.hospitalequipmenttracking.dto.request.*;
-import com.tq.hospitalequipmenttracking.dto.response.EquipmentAssignmentHistoryResponse;
-import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
-import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
-import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
+import com.tq.hospitalequipmenttracking.dto.response.*;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
 import com.tq.hospitalequipmenttracking.service.EquipmentService;
+import com.tq.hospitalequipmenttracking.service.MaintenanceServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+/**
+ * The /api prefix is not required technically,
+ * but it is commonly used to distinguish backend endpoints from frontend routes and to support versioning like /api/v1
+ * Assign 和 move 是 equipment 的行为，而 maintenance record 是一个独立资源，所以它们的 API 结构不同是合理的。
 
+ * */
 @RestController
-@RequestMapping("/equipment")
+@RequestMapping("/api/equipment")
 public class EquipmentController {
 
     // 构造函数注入 service layer
     private final EquipmentService equipmentService;
+    private final MaintenanceServiceImpl maintenanceServiceImpl;
 
-    public EquipmentController(EquipmentService equipmentService) {
+    public EquipmentController(EquipmentService equipmentService, MaintenanceServiceImpl maintenanceServiceImpl) {
         this.equipmentService = equipmentService;
+        this.maintenanceServiceImpl = maintenanceServiceImpl;
     }
 
     @GetMapping
@@ -156,6 +161,22 @@ public class EquipmentController {
     @GetMapping("/{id}/assignment-history")
     public List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(@PathVariable Long id) {
         return equipmentService.getAssignmentHistory(id);
+    }
+
+
+    // maintenance
+
+    @PostMapping("/{id}/maintenance-records")
+    public MaintenanceRecordResponse createMaintenanceRecord(
+            @PathVariable Long equipmentId,
+            @Valid @RequestBody CreateMaintenanceRecordRequest request) {
+        return maintenanceServiceImpl.createMaintenanceRecord(equipmentId, request);
+    }
+
+    @GetMapping("/{id}/maintenance-records")
+    public List<MaintenanceRecordResponse> getMaintenanceRecordsByEquipmentId(
+            @PathVariable Long equipmentId) {
+        return maintenanceServiceImpl.getMaintenanceRecordsByEquipmentId(equipmentId);
     }
 
 }

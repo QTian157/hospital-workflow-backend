@@ -3,6 +3,10 @@ import com.tq.hospitalequipmenttracking.model.*;
 
 import java.time.LocalDateTime;
 
+// I use final fields in DTOs to make them immutable.
+// Since final fields must be initialized at construction time,
+// I use all-args constructors and avoid no-args constructors.
+
 public class EquipmentResponse {
     private final Long id;
     private final String name;
@@ -27,7 +31,7 @@ public class EquipmentResponse {
     private final LocalDateTime assignedAt;
 
 
-    // ⭐ 构造函数（核心）
+    // 构造函数（核心）
     public EquipmentResponse(Long id,
                              String name,
                              EquipmentType type,
@@ -60,6 +64,7 @@ public class EquipmentResponse {
         this.assignedPersonName = assignedPersonName;
         this.assignedAt = assignedAt;
     }
+
 
     // ⭐ 只保留 getter（没有 setter）
 
@@ -122,4 +127,6 @@ public class EquipmentResponse {
     public LocalDateTime getAssignedAt() {
         return assignedAt;
     }
+
+
 }

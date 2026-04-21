@@ -17,6 +17,8 @@ public class EquipmentAssignmentHistoryResponse {
     private String notes;
     private LocalDateTime changedAt;
 
+    public EquipmentAssignmentHistoryResponse() {}
+
     public EquipmentAssignmentHistoryResponse(
             Long id,
             Long equipmentId,
