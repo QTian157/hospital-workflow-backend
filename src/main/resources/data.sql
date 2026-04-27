@@ -21,6 +21,23 @@ INSERT INTO rooms (id, name, department_id) VALUES (6, 'Pre-Op Bay 1', 5);
 INSERT INTO rooms (id, name, department_id) VALUES (7, 'Supply Room', 6);
 
 -- =========================
+-- Person
+-- =========================
+INSERT INTO people (id, first_name, last_name, employee_id, role, department_id, active)
+VALUES (1, 'Emily', 'Chen', 'E1001', 'NURSE', 1, true);
+
+INSERT INTO people (id, first_name, last_name, employee_id, role, department_id, active)
+VALUES (2, 'David', 'Li', 'E1002', 'DOCTOR', 1, true);
+
+INSERT INTO people (id, first_name, last_name, employee_id, role, department_id, active)
+VALUES (3, 'Sarah', 'Kim', 'E1003', 'TECHNICIAN', 2, true);
+
+INSERT INTO people (id, first_name, last_name, employee_id, role, department_id, active)
+VALUES (4, 'Michael', 'Wang', 'E1004', 'BIOMED', 3, true);
+
+INSERT INTO people (id, first_name, last_name, employee_id, role, department_id, active)
+VALUES (5, 'Lisa', 'Zhao', 'E1005', 'STAFF', 5, false);
+
 -- Equipment
 -- =========================
 -- 1. anesthesia（正常 + non-mobile）: non-mobile move/ move 到 ICU（type 不允许）

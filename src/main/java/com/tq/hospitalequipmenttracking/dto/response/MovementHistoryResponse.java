@@ -18,6 +18,8 @@ public class MovementHistoryResponse {
     private String movedBy;
     private String notes;
 
+    public MovementHistoryResponse() {}
+
     public MovementHistoryResponse(Long id,
                                    Long equipmentId,
                                    String equipmentName,

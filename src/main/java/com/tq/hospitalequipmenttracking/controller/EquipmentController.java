@@ -166,14 +166,14 @@ public class EquipmentController {
 
     // maintenance
 
-    @PostMapping("/{id}/maintenance-records")
+    @PostMapping("/{equipmentId}/maintenance-records")
     public MaintenanceRecordResponse createMaintenanceRecord(
             @PathVariable Long equipmentId,
             @Valid @RequestBody CreateMaintenanceRecordRequest request) {
         return maintenanceServiceImpl.createMaintenanceRecord(equipmentId, request);
     }
 
-    @GetMapping("/{id}/maintenance-records")
+    @GetMapping("/{equipmentId}/maintenance-records")
     public List<MaintenanceRecordResponse> getMaintenanceRecordsByEquipmentId(
             @PathVariable Long equipmentId) {
         return maintenanceServiceImpl.getMaintenanceRecordsByEquipmentId(equipmentId);

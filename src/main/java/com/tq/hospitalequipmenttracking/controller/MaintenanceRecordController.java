@@ -2,6 +2,7 @@ package com.tq.hospitalequipmenttracking.controller;
 
 import com.tq.hospitalequipmenttracking.dto.request.MaintenanceActionRequest;
 import com.tq.hospitalequipmenttracking.dto.response.MaintenanceRecordResponse;
+import com.tq.hospitalequipmenttracking.dto.response.MaintenanceViewResponse;
 import com.tq.hospitalequipmenttracking.model.MaintenanceRecord;
 import com.tq.hospitalequipmenttracking.service.MaintenanceServiceImpl;
 import jakarta.validation.Valid;
@@ -37,5 +38,10 @@ public class MaintenanceRecordController {
     @PostMapping("{recordId}/cancle")
     public MaintenanceRecordResponse cancleMaintenanceRecord(@PathVariable Long recordId, @Valid @RequestBody MaintenanceActionRequest request) {
         return maintenanceServiceImpl.cancelMaintenance(recordId, request);
+    }
+
+    @GetMapping("{recordId}/view")
+    public MaintenanceViewResponse getMaintenanceView(@PathVariable Long recordId) {
+        return maintenanceServiceImpl.getMaintenanceView(recordId);
     }
 }

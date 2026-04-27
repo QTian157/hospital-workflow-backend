@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class CreateMaintenanceRecordRequest {
 
     @NotNull
-    private Long requestById;
+    private Long requestedById;
 
     @NotNull
     private LocalDateTime scheduledDate;
@@ -17,9 +17,8 @@ public class CreateMaintenanceRecordRequest {
     private MaintenanceType maintenanceType;
     private String description;
     private String notes;
-
-    public Long getRequestById() {
-        return requestById;
+    public Long getRequestedById() {
+        return requestedById;
     }
 
     public LocalDateTime getScheduledDate() {
@@ -38,8 +37,8 @@ public class CreateMaintenanceRecordRequest {
         return notes;
     }
 
-    public void setRequestById(Long requestById) {
-        requestById = requestById;
+    public void setRequestedById(Long requestedById) {
+        this.requestedById = requestedById;
     }
 
     public void setScheduledDate(LocalDateTime scheduledDate) {

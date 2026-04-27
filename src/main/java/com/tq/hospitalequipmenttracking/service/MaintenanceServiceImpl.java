@@ -3,6 +3,7 @@ package com.tq.hospitalequipmenttracking.service;
 import com.tq.hospitalequipmenttracking.dto.request.CreateMaintenanceRecordRequest;
 import com.tq.hospitalequipmenttracking.dto.request.MaintenanceActionRequest;
 import com.tq.hospitalequipmenttracking.dto.response.MaintenanceRecordResponse;
+import com.tq.hospitalequipmenttracking.dto.response.MaintenanceViewResponse;
 import com.tq.hospitalequipmenttracking.exception.BadRequestException;
 import com.tq.hospitalequipmenttracking.exception.ResourceNotFoundException;
 import com.tq.hospitalequipmenttracking.model.*;
@@ -32,7 +33,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     @Transactional
     public MaintenanceRecordResponse createMaintenanceRecord(Long equipmentId, CreateMaintenanceRecordRequest request){
         Equipment equipment = findEquipmentByIdOrThrow(equipmentId);
-        Person requestedBy = findPersonByIdOrThrow(request.getRequestById());
+        Person requestedBy = findPersonByIdOrThrow(request.getRequestedById());
 
         MaintenanceRecord maintenanceRecord = new MaintenanceRecord();
         maintenanceRecord.setEquipment(equipment);
@@ -132,6 +133,34 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         return mapToMaintenanceRecordResponse(record);
     };
+
+    @Override
+    @Transactional
+    public MaintenanceViewResponse getMaintenanceView(Long recordId){
+        MaintenanceRecord record = findMaintenanceRecordByIdOrThrow(recordId);
+        Equipment equipment = record.getEquipment();
+
+        return new MaintenanceViewResponse(
+                record.getId(),
+                record.getStatus(),
+                record.getMaintenanceType(),
+                record.getScheduledDate(),
+                record.getCompletedDate(),
+                record.getPerformedBy(),
+                equipment.getId(),
+                equipment.getName(),
+                equipment.getStatus(),
+                record.getRequestedBy().getFirstName() + " " + record.getRequestedBy().getLastName(),
+                record.getDescription(),
+                record.getNotes()
+        );
+
+    }
+    /**
+     * I separate resource DTOs from view DTOs.
+     * MaintenanceRecordResponse represents the maintenance entity itself,
+     * while MaintenanceViewResponse combines maintenance and equipment data for frontend convenience.
+     * */
 
     private Equipment findEquipmentByIdOrThrow(Long equipmentId) {
         return equipmentRepository.findById(equipmentId)
