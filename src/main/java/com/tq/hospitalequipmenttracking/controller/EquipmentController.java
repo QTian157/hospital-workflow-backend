@@ -9,6 +9,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.tq.hospitalequipmenttracking.model.EquipmentType;
+import com.tq.hospitalequipmenttracking.model.EquipmentCategory;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 /**
  * The /api prefix is not required technically,
@@ -177,6 +181,50 @@ public class EquipmentController {
     public List<MaintenanceRecordResponse> getMaintenanceRecordsByEquipmentId(
             @PathVariable Long equipmentId) {
         return maintenanceServiceImpl.getMaintenanceRecordsByEquipmentId(equipmentId);
+    }
+
+    // search
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<EquipmentResponse>> searchEquipment(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) EquipmentStatus status,
+            @RequestParam(required = false) EquipmentType type,
+            @RequestParam(required = false) EquipmentCategory category,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Long roomId,
+            @RequestParam(required = false) Boolean mobile,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        EquipmentSearchRequest request = new EquipmentSearchRequest();
+        request.setKeyword(keyword);
+        request.setStatus(status);
+        request.setType(type);
+        request.setCategory(category);
+        request.setDepartmentId(departmentId);
+        request.setRoomId(roomId);
+        request.setMobile(mobile);
+        request.setPage(page);
+        request.setSize(size);
+        request.setSortBy(sortBy);
+        request.setSortDir(sortDir);
+
+        Page<EquipmentResponse> result = equipmentService.searchEquipment(request);
+
+        // here is PageResponseDTO
+        PageResponse<EquipmentResponse> response = new PageResponse<>(
+                result.getContent(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.isFirst(),
+                result.isLast()
+        );
+        return ResponseEntity.ok(response);
+//        return ResponseEntity.ok(result);
     }
 
 }

@@ -6,6 +6,7 @@ import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
 import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
 import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
+import org.springframework.data.domain.Page;
 
 
 import java.util.List;
@@ -33,4 +34,6 @@ public interface EquipmentService {
     EquipmentResponse assignEquipment(Long equipmentId, AssignEquipmentRequest request);
     EquipmentResponse unassignEquipment(Long equipmentId, AssignmentActionRequest request);
     List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(Long equipmentId);
+
+    Page<EquipmentResponse> searchEquipment(EquipmentSearchRequest request);
 }

@@ -9,8 +9,14 @@ import com.tq.hospitalequipmenttracking.exception.BadRequestException;
 import com.tq.hospitalequipmenttracking.exception.ResourceNotFoundException;
 import com.tq.hospitalequipmenttracking.model.*;
 import com.tq.hospitalequipmenttracking.repository.*;
+import com.tq.hospitalequipmenttracking.spec.EquipmentSpecification;
 import com.tq.hospitalequipmenttracking.validation.EquipmentMoveValidator;
+import com.tq.hospitalequipmenttracking.validation.EquipmentSearchRequestValidator;
 import com.tq.hospitalequipmenttracking.validation.EquipmentStatusTransitionValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
@@ -479,6 +487,39 @@ public class EquipmentServiceImpl implements EquipmentService {
                 history.getNotes() != null ? history.getNotes() : null,
                 history.getChangedAt()
         );
+    }
+
+    @Override
+    public Page<EquipmentResponse> searchEquipment(EquipmentSearchRequest request) {
+        // Sorting is not done in memory.
+        // We pass the sort configuration through Pageable, and the database applies ORDER BY during query execution
+
+        // 1. Create Sort to define sorting rules (e.g., by name descending)
+        // 2. Create Pageable to combine pagination and sorting
+        // 3. Build Specification for dynamic filtering conditions
+        // 4. Call repository.findAll(spec, pageable)
+        // 5. Spring Data JPA generates SQL with WHERE, ORDER BY, LIMIT
+        // 6. Database executes query and returns paginated results
+
+        EquipmentSearchRequestValidator.validate(request);
+
+        // 1. sort to give rules: by name by desc
+        Sort sort = request.getSortDir().equalsIgnoreCase("desc")
+                ? Sort.by(request.getSortBy()).descending()
+                : Sort.by(request.getSortBy()).ascending();
+
+        // 2. Pagable to put sort rules in it
+        Pageable pageable = PageRequest.of(
+                request.getPage(),
+                request.getSize(),
+                sort
+        );
+
+        // 3. create SQL and find in database
+
+        return equipmentRepository
+                .findAll(EquipmentSpecification.search(request), pageable)
+                .map(this::mapToResponse);
     }
 
 }

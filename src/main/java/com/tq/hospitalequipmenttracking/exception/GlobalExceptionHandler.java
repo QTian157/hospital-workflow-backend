@@ -17,34 +17,23 @@ public class GlobalExceptionHandler {
 
     // 处理 ResponseStatusException（你现在用的）
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleException(BadRequestException ex) {
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 400);
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-
+        ErrorResponse response = new ErrorResponse(400, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 404);
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-
+    public  ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(404, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         ex.printStackTrace(); // key for debug
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 500);
-        response.put("message", "Internal server error");
-        response.put("timestamp", LocalDateTime.now());
-
+        ErrorResponse response = new ErrorResponse(500, "Internal server error");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -52,22 +41,16 @@ public class GlobalExceptionHandler {
     // this is Spring has
     // When added  @Valid（or @Validated）on Controller，Spring will automatically do validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> validationErrors = new HashMap<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        response.put("code", 400);
-        response.put("message", "Validation failed");
-        response.put("errors", validationErrors);
-        response.put("timestamp", LocalDateTime.now());
+        ErrorResponse response = new ErrorResponse(400, "Validation failed", validationErrors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
-
 
 }
