@@ -17,40 +17,41 @@ public class GlobalExceptionHandler {
 
     // 处理 ResponseStatusException（你现在用的）
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleException(BadRequestException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleException(BadRequestException ex) {
 
-        ErrorResponse response = new ErrorResponse(400, ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//        ErrorResponse response = new ErrorResponse(400, ex.getMessage());
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                ApiResponse.error(400, ex.getMessage()),
+                HttpStatus.BAD_REQUEST
+        );
 
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public  ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        ErrorResponse response = new ErrorResponse(404, ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    public  ResponseEntity<ApiResponse<Object>> handleNotFound(ResourceNotFoundException ex) {
+        return new ResponseEntity<>(
+                ApiResponse.error(404, ex.getMessage()),
+                HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+    public ResponseEntity<ApiResponse<Object>> handleGeneral(Exception ex) {
         ex.printStackTrace(); // key for debug
-        ErrorResponse response = new ErrorResponse(500, "Internal server error");
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ApiResponse.error(500, "Internal server error"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
     // this is Spring has
     // When added  @Valid（or @Validated）on Controller，Spring will automatically do validation
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> validationErrors = new HashMap<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
-
-        ErrorResponse response = new ErrorResponse(400, "Validation failed", validationErrors);
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ApiResponse.error(400, "Validation failed", validationErrors), HttpStatus.BAD_REQUEST);
     }
-
 }

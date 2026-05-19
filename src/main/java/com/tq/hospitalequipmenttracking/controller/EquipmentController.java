@@ -2,9 +2,10 @@ package com.tq.hospitalequipmenttracking.controller;
 
 import com.tq.hospitalequipmenttracking.dto.request.*;
 import com.tq.hospitalequipmenttracking.dto.response.*;
+import com.tq.hospitalequipmenttracking.exception.ApiResponse;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
 import com.tq.hospitalequipmenttracking.service.EquipmentService;
-import com.tq.hospitalequipmenttracking.service.MaintenanceServiceImpl;
+import com.tq.hospitalequipmenttracking.service.MaintenanceService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,78 +21,120 @@ import java.util.List;
  * Assign 和 move 是 equipment 的行为，而 maintenance record 是一个独立资源，所以它们的 API 结构不同是合理的。
 
  * */
+/**
+ * Seperate the response into three layers:
+     * "ResponseEntity" handles HTTP concerns such as status codes and headers.
+     * "ApiResponse" provides a consistent response contract across APIs
+     * "EquipmentResponse" contains the actual business data
+ * */
 @RestController
 @RequestMapping("/api/equipment")
 public class EquipmentController {
 
     // 构造函数注入 service layer
     private final EquipmentService equipmentService;
-    private final MaintenanceServiceImpl maintenanceServiceImpl;
+    private final MaintenanceService maintenanceService;
 
-    public EquipmentController(EquipmentService equipmentService, MaintenanceServiceImpl maintenanceServiceImpl) {
+    public EquipmentController(EquipmentService equipmentService, MaintenanceService maintenanceService) {
         this.equipmentService = equipmentService;
-        this.maintenanceServiceImpl = maintenanceServiceImpl;
+        this.maintenanceService = maintenanceService;
     }
 
     @GetMapping
-    public List<EquipmentResponse> getAllEquipments() {
-        return equipmentService.getAllEquipments();
+//    public List<EquipmentResponse> getAllEquipments() {
+//        return equipmentService.getAllEquipments();
+//    }
+    public ResponseEntity<ApiResponse<List<EquipmentResponse>>> getAllEquipments() {
+        return ResponseEntity.ok(
+                ApiResponse.success(equipmentService.getAllEquipments())
+        );
     }
 
     @PostMapping
-    public EquipmentResponse addEquipment(@Valid @RequestBody CreateEquipmentRequest request) {
-        System.out.println("===add = ");
-        return equipmentService.addEquipment(request);
+//    public EquipmentResponse addEquipment(@Valid @RequestBody CreateEquipmentRequest request) {
+//        System.out.println("===add = ");
+//        return equipmentService.addEquipment(request);
+//    }
+    public ResponseEntity<ApiResponse<EquipmentResponse>>  addEquipment(@Valid @RequestBody CreateEquipmentRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment created successfully",
+                        equipmentService.addEquipment(request)
+                )
+        );
     }
+    // get - no message
+    // create, put, delete - has message
 
     @GetMapping("/status/{status}")
-    public List<EquipmentResponse> getEquipmentByStatus(@PathVariable EquipmentStatus status) {
-        return equipmentService.getEquipmentByStatus(status);
+    public ResponseEntity<ApiResponse<List<EquipmentResponse>>> getEquipmentByStatus(@PathVariable EquipmentStatus status) {
+        return ResponseEntity.ok(
+                ApiResponse.success(equipmentService.getEquipmentByStatus(status))
+        );
     }
 
     @GetMapping("/id/{id}")
-    public EquipmentResponse getEquipmentById(@PathVariable Long id) {
-        return equipmentService.getEquipmentById(id);
+//    public EquipmentResponse getEquipmentById(@PathVariable Long id) {
+//        return equipmentService.getEquipmentById(id);
+//    }
+    public ResponseEntity<ApiResponse<EquipmentResponse>> getEquipmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                ApiResponse.success(equipmentService.getEquipmentById(id))
+        );
     }
 
     // 这里用DTO:UpdateStatusRequest request
     // Only update basic info: name, type, category, assetTag, serialNumber, mobile. Not touch: room, department, status, assignTo
     @PutMapping("/{id}/status")
-    public EquipmentResponse updateEquipmentStatus(@PathVariable Long id, @Valid @RequestBody UpdateEquipmentStatusRequest request) {
-        return equipmentService.updateEquipmentStatus(id,request);
+    public ResponseEntity<ApiResponse<EquipmentResponse>> updateEquipmentStatus(@PathVariable Long id, @Valid @RequestBody UpdateEquipmentStatusRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment status updated successfully",
+                        equipmentService.updateEquipmentStatus(id,request))
+        );
     }
     // Only changes for department, room and write MovementHistory
     @PostMapping("/{id}/move")
-    public EquipmentResponse moveEquipment(@PathVariable Long id, @Valid @RequestBody MoveEquipmentRequest request) {
+    public ResponseEntity<ApiResponse<EquipmentResponse>> moveEquipment(@PathVariable Long id, @Valid @RequestBody MoveEquipmentRequest request) {
 
 //        System.out.println("=== move endpoint id = " + id);
-        return equipmentService.moveEquipment(id, request);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment moved successfully",
+                        equipmentService.moveEquipment(id, request))
+        );
     }
 
     @GetMapping("/{id}/movement-history")
-    public List<MovementHistoryResponse> getMovementHistoryByEquipmentId(@PathVariable Long id){
-        return equipmentService.getMovementHistoryByEquipmentId(id);
+    public ResponseEntity<ApiResponse<List<MovementHistoryResponse>>> getMovementHistoryByEquipmentId(@PathVariable Long id){
+        return ResponseEntity.ok(
+                ApiResponse.success(equipmentService.getMovementHistoryByEquipmentId(id))
+        );
     }
 
     // POST /equipments/{id}/xxx-status-action: check for status legally, change equipment.status, add StatusHistory, some actions for maintenance
     // I used ResponseEntity to have full control over HTTP responses,
     // including status codes and response structure.
     @PostMapping("/{id}/start-use")
-    public ResponseEntity<EquipmentResponse> startUse(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> startUse(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.startUse(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success("Equipment marked as in use successfully", response)
+        );
     }
 
     @PostMapping("/{id}/mark-dirty")
-    public ResponseEntity<EquipmentResponse> markDirty(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> markDirty(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.markDirty(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success("Equipment marked as dirty successfully", response)
+        );
     }
 
 //    @PostMapping("/{id}/mark-dirty")
@@ -100,92 +143,147 @@ public class EquipmentController {
 //    }
 
     @PostMapping("/{id}/start-cleaning")
-    public ResponseEntity<EquipmentResponse> startCleaning(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> startCleaning(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.startCleaning(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success("Equipment cleaning started successfully",response)
+        );
     }
 
     @PostMapping("/{id}/mark-sterile")
-    public ResponseEntity<EquipmentResponse> markSterile(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> markSterile(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.markSterile(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success("Equipment marked as sterile successfully",response)
+        );
     }
 
     @PostMapping("/{id}/return-to-available")
-    public ResponseEntity<EquipmentResponse> returnToAvailable(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> returnToAvailable(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.returnToAvailable(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment marked as available successfully",
+                        response
+                )
+        );
     }
 
     @PostMapping("/{id}/send-to-maintenance")
-    public ResponseEntity<EquipmentResponse> sendToMaintenance(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> sendToMaintenance(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.sendToMaintenance(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment sent to maintenance successfully",
+                        response
+                )
+        );
     }
 
     @PostMapping("/{id}/complete-maintenance")
-    public ResponseEntity<EquipmentResponse> completeMaintenance(
+    public ResponseEntity<ApiResponse<EquipmentResponse>> completeMaintenance(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
     ) {
         EquipmentResponse response = equipmentService.completeMaintenance(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment maintenance completed successfully",
+                        response
+                )
+        );
     }
 
     @GetMapping("/{id}/status-history")
-    public List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(@PathVariable Long id){
-        return equipmentService.getUpdateHistoryByEquipmentId(id);
+    public ResponseEntity<ApiResponse<List<UpdateHistoryResponse>>> getUpdateHistoryByEquipmentId(@PathVariable Long id){
+        List<UpdateHistoryResponse> response =
+                equipmentService.getUpdateHistoryByEquipmentId(id);
+        return ResponseEntity.ok(
+                ApiResponse.success(response)
+        );
     }
 
     @PostMapping("/{id}/assign")
-    public EquipmentResponse assignEquipment(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<EquipmentResponse>> assignEquipment(@PathVariable Long id,
                                              @Valid @RequestBody AssignEquipmentRequest request) {
-        return equipmentService.assignEquipment(id, request);
+        EquipmentResponse response = equipmentService.assignEquipment(id, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment assigned successfully",
+                        response
+                )
+        );
     }
 
     @PostMapping("/{id}/unassign")
-    public EquipmentResponse unassignEquipment(@PathVariable Long id,
+    public ResponseEntity<ApiResponse<EquipmentResponse>> unassignEquipment(@PathVariable Long id,
                                                @RequestBody(required = false) AssignmentActionRequest request) {
-        return equipmentService.unassignEquipment(id, request);
+        EquipmentResponse response = equipmentService.unassignEquipment(id, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Equipment unassigned successfully",
+                        response
+                )
+        );
     }
 
 
     @GetMapping("/{id}/assignment-history")
-    public List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(@PathVariable Long id) {
-        return equipmentService.getAssignmentHistory(id);
+    public ResponseEntity<ApiResponse<List<EquipmentAssignmentHistoryResponse>>> getAssignmentHistory(@PathVariable Long id) {
+        List<EquipmentAssignmentHistoryResponse> response =
+                equipmentService.getAssignmentHistory(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(response)
+        );
     }
 
 
     // maintenance
 
     @PostMapping("/{equipmentId}/maintenance-records")
-    public MaintenanceRecordResponse createMaintenanceRecord(
+    public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> createMaintenanceRecord(
             @PathVariable Long equipmentId,
             @Valid @RequestBody CreateMaintenanceRecordRequest request) {
-        return maintenanceServiceImpl.createMaintenanceRecord(equipmentId, request);
+        MaintenanceRecordResponse response =
+                maintenanceService.createMaintenanceRecord(equipmentId, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Maintenance record created successfully",
+                        response
+                )
+        );
     }
 
     @GetMapping("/{equipmentId}/maintenance-records")
-    public List<MaintenanceRecordResponse> getMaintenanceRecordsByEquipmentId(
+    public ResponseEntity<ApiResponse<List<MaintenanceRecordResponse>>> getMaintenanceRecordsByEquipmentId(
             @PathVariable Long equipmentId) {
-        return maintenanceServiceImpl.getMaintenanceRecordsByEquipmentId(equipmentId);
+        List<MaintenanceRecordResponse> response =
+                maintenanceService.getMaintenanceRecordsByEquipmentId(equipmentId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(response)
+        );
     }
 
     // search
     @GetMapping("/search")
-    public ResponseEntity<PageResponse<EquipmentResponse>> searchEquipment(
+    public ResponseEntity<ApiResponse<PageResponse<EquipmentResponse>>> searchEquipment(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) EquipmentStatus status,
             @RequestParam(required = false) EquipmentType type,
@@ -213,7 +311,6 @@ public class EquipmentController {
 
         Page<EquipmentResponse> result = equipmentService.searchEquipment(request);
 
-        // here is PageResponseDTO
         PageResponse<EquipmentResponse> response = new PageResponse<>(
                 result.getContent(),
                 result.getNumber(),
@@ -223,8 +320,10 @@ public class EquipmentController {
                 result.isFirst(),
                 result.isLast()
         );
-        return ResponseEntity.ok(response);
-//        return ResponseEntity.ok(result);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(response)
+        );
     }
 
 }
