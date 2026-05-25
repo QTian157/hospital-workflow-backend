@@ -9,6 +9,7 @@ import com.tq.hospitalequipmenttracking.service.MaintenanceService;
 import com.tq.hospitalequipmenttracking.service.MaintenanceServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 //
@@ -59,6 +60,7 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/{recordId}")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> getMaintenanceRecordById(
             @PathVariable Long recordId) {
 
@@ -69,6 +71,7 @@ public class MaintenanceRecordController {
     }
 
     @PostMapping("/{recordId}/start")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> startMaintenanceRecord(
             @PathVariable Long recordId,
             @Valid @RequestBody MaintenanceActionRequest request) {
@@ -82,6 +85,7 @@ public class MaintenanceRecordController {
     }
 
     @PostMapping("/{recordId}/complete")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> completeMaintenanceRecord(
             @PathVariable Long recordId,
             @Valid @RequestBody MaintenanceActionRequest request) {
@@ -95,6 +99,7 @@ public class MaintenanceRecordController {
     }
 
     @PostMapping("/{recordId}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> cancelMaintenanceRecord(
             @PathVariable Long recordId,
             @Valid @RequestBody MaintenanceActionRequest request) {
@@ -108,6 +113,7 @@ public class MaintenanceRecordController {
     }
 
     @GetMapping("/{recordId}/view")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<MaintenanceViewResponse>> getMaintenanceView(
             @PathVariable Long recordId) {
 
@@ -117,3 +123,5 @@ public class MaintenanceRecordController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
+
+// GUEST is read-only, STAFF handles day-to-day operations, ADMIN manages assignment and administrative actions.

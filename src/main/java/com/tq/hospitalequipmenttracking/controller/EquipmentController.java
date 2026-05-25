@@ -8,6 +8,7 @@ import com.tq.hospitalequipmenttracking.service.EquipmentService;
 import com.tq.hospitalequipmenttracking.service.MaintenanceService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.tq.hospitalequipmenttracking.model.EquipmentType;
@@ -44,6 +45,7 @@ public class EquipmentController {
 //    public List<EquipmentResponse> getAllEquipments() {
 //        return equipmentService.getAllEquipments();
 //    }
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<List<EquipmentResponse>>> getAllEquipments() {
         return ResponseEntity.ok(
                 ApiResponse.success(equipmentService.getAllEquipments())
@@ -55,6 +57,7 @@ public class EquipmentController {
 //        System.out.println("===add = ");
 //        return equipmentService.addEquipment(request);
 //    }
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>>  addEquipment(@Valid @RequestBody CreateEquipmentRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -67,6 +70,7 @@ public class EquipmentController {
     // create, put, delete - has message
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<List<EquipmentResponse>>> getEquipmentByStatus(@PathVariable EquipmentStatus status) {
         return ResponseEntity.ok(
                 ApiResponse.success(equipmentService.getEquipmentByStatus(status))
@@ -74,6 +78,7 @@ public class EquipmentController {
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
 //    public EquipmentResponse getEquipmentById(@PathVariable Long id) {
 //        return equipmentService.getEquipmentById(id);
 //    }
@@ -86,6 +91,7 @@ public class EquipmentController {
     // 这里用DTO:UpdateStatusRequest request
     // Only update basic info: name, type, category, assetTag, serialNumber, mobile. Not touch: room, department, status, assignTo
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> updateEquipmentStatus(@PathVariable Long id, @Valid @RequestBody UpdateEquipmentStatusRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -95,6 +101,7 @@ public class EquipmentController {
     }
     // Only changes for department, room and write MovementHistory
     @PostMapping("/{id}/move")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> moveEquipment(@PathVariable Long id, @Valid @RequestBody MoveEquipmentRequest request) {
 
 //        System.out.println("=== move endpoint id = " + id);
@@ -106,6 +113,7 @@ public class EquipmentController {
     }
 
     @GetMapping("/{id}/movement-history")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<List<MovementHistoryResponse>>> getMovementHistoryByEquipmentId(@PathVariable Long id){
         return ResponseEntity.ok(
                 ApiResponse.success(equipmentService.getMovementHistoryByEquipmentId(id))
@@ -116,6 +124,7 @@ public class EquipmentController {
     // I used ResponseEntity to have full control over HTTP responses,
     // including status codes and response structure.
     @PostMapping("/{id}/start-use")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> startUse(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -127,6 +136,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/mark-dirty")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> markDirty(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -143,6 +153,7 @@ public class EquipmentController {
 //    }
 
     @PostMapping("/{id}/start-cleaning")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> startCleaning(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -154,6 +165,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/mark-sterile")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> markSterile(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -165,6 +177,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/return-to-available")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> returnToAvailable(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -179,6 +192,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/send-to-maintenance")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> sendToMaintenance(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -193,6 +207,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/complete-maintenance")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> completeMaintenance(
             @PathVariable Long id,
             @RequestBody(required = false) StatusActionRequest request
@@ -207,6 +222,7 @@ public class EquipmentController {
     }
 
     @GetMapping("/{id}/status-history")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<List<UpdateHistoryResponse>>> getUpdateHistoryByEquipmentId(@PathVariable Long id){
         List<UpdateHistoryResponse> response =
                 equipmentService.getUpdateHistoryByEquipmentId(id);
@@ -216,6 +232,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/assign")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> assignEquipment(@PathVariable Long id,
                                              @Valid @RequestBody AssignEquipmentRequest request) {
         EquipmentResponse response = equipmentService.assignEquipment(id, request);
@@ -229,6 +246,7 @@ public class EquipmentController {
     }
 
     @PostMapping("/{id}/unassign")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<EquipmentResponse>> unassignEquipment(@PathVariable Long id,
                                                @RequestBody(required = false) AssignmentActionRequest request) {
         EquipmentResponse response = equipmentService.unassignEquipment(id, request);
@@ -243,6 +261,7 @@ public class EquipmentController {
 
 
     @GetMapping("/{id}/assignment-history")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public ResponseEntity<ApiResponse<List<EquipmentAssignmentHistoryResponse>>> getAssignmentHistory(@PathVariable Long id) {
         List<EquipmentAssignmentHistoryResponse> response =
                 equipmentService.getAssignmentHistory(id);
@@ -256,6 +275,7 @@ public class EquipmentController {
     // maintenance
 
     @PostMapping("/{equipmentId}/maintenance-records")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<ApiResponse<MaintenanceRecordResponse>> createMaintenanceRecord(
             @PathVariable Long equipmentId,
             @Valid @RequestBody CreateMaintenanceRecordRequest request) {
@@ -271,6 +291,7 @@ public class EquipmentController {
     }
 
     @GetMapping("/{equipmentId}/maintenance-records")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<List<MaintenanceRecordResponse>>> getMaintenanceRecordsByEquipmentId(
             @PathVariable Long equipmentId) {
         List<MaintenanceRecordResponse> response =
@@ -283,6 +304,7 @@ public class EquipmentController {
 
     // search
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
     public ResponseEntity<ApiResponse<PageResponse<EquipmentResponse>>> searchEquipment(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) EquipmentStatus status,
