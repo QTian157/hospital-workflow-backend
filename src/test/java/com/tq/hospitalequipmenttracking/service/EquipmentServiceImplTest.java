@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * If someone check -> dont connect database -> Mockito blocked
+ * If someone check -> don't connect database -> Mockito blocked
  * */
 @ExtendWith(MockitoExtension.class)
 class EquipmentServiceImplTest {
