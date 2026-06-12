@@ -1,0 +1,85 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="IpI_cVMxLwwjuf5jU-gI">
+    <mxGraphModel dx="1178" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="AVALABLE" vertex="1">
+          <mxGeometry height="30" width="120" x="180" y="82" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-2" parent="1" style="text;whiteSpace=wrap;html=1;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Hospital Equipment Tracking System&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="396" x="274" y="19" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="IN_USE" vertex="1">
+          <mxGeometry height="30" width="120" x="290" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="DIRTY" vertex="1">
+          <mxGeometry height="30" width="120" x="290" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="IN_CLEAN" vertex="1">
+          <mxGeometry height="30" width="120" x="290" y="348" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="STERILE" vertex="1">
+          <mxGeometry height="30" width="120" x="290" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="AVAILABLE" vertex="1">
+          <mxGeometry height="30" width="120" x="170" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-8" edge="1" parent="1" source="fwQgJSB0PGxHGNx2IpSq-3" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;startArrow=open;startFill=0;" target="fwQgJSB0PGxHGNx2IpSq-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="105" />
+            </Array>
+            <mxPoint x="390" y="229" as="sourcePoint" />
+            <mxPoint x="440" y="179" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-9" edge="1" parent="1" source="fwQgJSB0PGxHGNx2IpSq-4" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;startArrow=open;startFill=0;" target="fwQgJSB0PGxHGNx2IpSq-3" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="160" as="sourcePoint" />
+            <mxPoint x="380" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-10" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;startArrow=open;startFill=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="349.76" y="350" as="sourcePoint" />
+            <mxPoint x="349.76" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-11" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;startArrow=open;startFill=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="349.76" y="448" as="sourcePoint" />
+            <mxPoint x="349.76" y="378" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-12" edge="1" parent="1" source="fwQgJSB0PGxHGNx2IpSq-1" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;startArrow=open;startFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="fwQgJSB0PGxHGNx2IpSq-6" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="465" />
+            </Array>
+            <mxPoint x="130" y="510" as="sourcePoint" />
+            <mxPoint x="349.76" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-13" parent="1" style="text;whiteSpace=wrap;html=1;" value="Start Use" vertex="1">
+          <mxGeometry height="40" width="140" x="384" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-14" parent="1" style="text;whiteSpace=wrap;html=1;" value="Make Dirty" vertex="1">
+          <mxGeometry height="40" width="140" x="384" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-15" parent="1" style="text;whiteSpace=wrap;html=1;" value="Start Cleaning" vertex="1">
+          <mxGeometry height="40" width="140" x="384" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-16" parent="1" style="text;whiteSpace=wrap;html=1;" value="Make Sterile" vertex="1">
+          <mxGeometry height="40" width="140" x="384" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-17" parent="1" style="text;whiteSpace=wrap;html=1;" value="Return to Available" vertex="1">
+          <mxGeometry height="40" width="140" x="120" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="fwQgJSB0PGxHGNx2IpSq-18" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;&lt;font&gt;System Features&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• JWT Authentication&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• Equipment Assignment&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• Movement Tracking&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• Maintenance Records&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• Status History&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;• Audit Trail&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="150" x="500" y="82" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

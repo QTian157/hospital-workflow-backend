@@ -42,7 +42,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // public endpoints
-                        .requestMatchers("/api/auth/**")
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**")
                         .permitAll()
 
                         // only ADMIN

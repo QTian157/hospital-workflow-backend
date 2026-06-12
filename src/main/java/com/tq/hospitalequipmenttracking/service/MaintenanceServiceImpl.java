@@ -4,12 +4,12 @@ import com.tq.hospitalequipmenttracking.dto.request.CreateMaintenanceRecordReque
 import com.tq.hospitalequipmenttracking.dto.request.MaintenanceActionRequest;
 import com.tq.hospitalequipmenttracking.dto.response.MaintenanceRecordResponse;
 import com.tq.hospitalequipmenttracking.dto.response.MaintenanceViewResponse;
-import com.tq.hospitalequipmenttracking.exception.BadRequestException;
 import com.tq.hospitalequipmenttracking.exception.ResourceNotFoundException;
 import com.tq.hospitalequipmenttracking.model.*;
 import com.tq.hospitalequipmenttracking.repository.EquipmentRepository;
 import com.tq.hospitalequipmenttracking.repository.MaintenanceRecordRepository;
 import com.tq.hospitalequipmenttracking.repository.PersonRepository;
+import com.tq.hospitalequipmenttracking.validation.MaintenanceValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +71,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     public MaintenanceRecordResponse startMaintenance(Long recordId, MaintenanceActionRequest request){
         MaintenanceRecord record = findMaintenanceRecordByIdOrThrow(recordId);
 
-        validateCanStart(record);
+        MaintenanceValidator.validateCanStart(record);
         record.setStatus(MaintenanceStatus.IN_PROGRESS);
         record.setPerformedBy(request.getPerformedBy());
         record.setNotes(request.getNotes());
@@ -91,7 +91,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     public MaintenanceRecordResponse completeMaintenance(Long recordId, MaintenanceActionRequest request){
         MaintenanceRecord record = findMaintenanceRecordByIdOrThrow(recordId);
 
-        validateCanComplete(record);
+        MaintenanceValidator.validateCanComplete(record);
 
         record.setStatus(MaintenanceStatus.COMPLETED);
         record.setCompletedDate(LocalDateTime.now());
@@ -113,7 +113,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     public MaintenanceRecordResponse cancelMaintenance(Long recordId, MaintenanceActionRequest request){
         MaintenanceRecord record = findMaintenanceRecordByIdOrThrow(recordId);
 
-        validateCanCancel(record);
+        MaintenanceValidator.validateCanCancel(record);
 
         MaintenanceStatus currentStatus = record.getStatus();
 
@@ -175,24 +175,6 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     private MaintenanceRecord findMaintenanceRecordByIdOrThrow(Long recordId) {
         return maintenanceRecordRepository.findById(recordId)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance record not found with id: " + recordId));
-    }
-
-    private void validateCanStart(MaintenanceRecord record) {
-        if (record.getStatus() != MaintenanceStatus.SCHEDULED) {
-            throw new BadRequestException("Only scheduled maintenance can be started.");
-        }
-    }
-
-    private void validateCanComplete(MaintenanceRecord record) {
-        if (record.getStatus() != MaintenanceStatus.IN_PROGRESS) {
-            throw new BadRequestException("Only in-progress maintenance can be completed.");
-        }
-    }
-
-    private void validateCanCancel(MaintenanceRecord record) {
-        if (record.getStatus() != MaintenanceStatus.SCHEDULED && record.getStatus() != MaintenanceStatus.IN_PROGRESS) {
-            throw new BadRequestException("Only scheduled or in-progress maintenance can be canceled.");
-        }
     }
 
     private MaintenanceRecordResponse mapToMaintenanceRecordResponse(MaintenanceRecord record) {

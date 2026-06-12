@@ -52,5 +52,4 @@ public class EquipmentStatusTransitionValidator {
         return ALLOWED_EQUIPMENTS.getOrDefault(curStatus, Set.of());
     }
 
-
 }

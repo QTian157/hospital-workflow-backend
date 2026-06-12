@@ -20,7 +20,7 @@ These dimensions are intentionally decoupled because a single type of equipment,
 public final class EquipmentMoveValidator {
     private EquipmentMoveValidator() {};
 
-    private static final Set<EquipmentStatus> MOVE_ALLOWED_STATUSES = EnumSet.of(EquipmentStatus.AVAILABLE, EquipmentStatus.IN_CLEANING, EquipmentStatus.STERILE);
+    private static final Set<EquipmentStatus> MOVE_ALLOWED_STATUSES = EnumSet.of(EquipmentStatus.AVAILABLE, EquipmentStatus.DIRTY);
 
     private static final Map<EquipmentType, Set<DepartmentType>> ALLOWED_DEPARTMENTS_BY_TYPE = new HashMap<>();
 
