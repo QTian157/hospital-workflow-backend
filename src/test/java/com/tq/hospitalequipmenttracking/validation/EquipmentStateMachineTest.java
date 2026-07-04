@@ -13,10 +13,10 @@ class EquipmentStateMachineTest {
     void startUse_shouldAllowAvailable() {
 
         boolean result =
-                EquipmentStateMachine
-                        .ALLOW_TRANSITIONS
-                        .get(StatusAction.START_USE)
-                        .contains(EquipmentStatus.AVAILABLE);
+                EquipmentStateMachine.canPerform(
+                        StatusAction.START_USE,
+                        EquipmentStatus.AVAILABLE
+                );
 
         assertTrue(result);
     }
@@ -25,10 +25,10 @@ class EquipmentStateMachineTest {
     void startUse_shouldRejectDirty() {
 
         boolean result =
-                EquipmentStateMachine
-                        .ALLOW_TRANSITIONS
-                        .get(StatusAction.START_USE)
-                        .contains(EquipmentStatus.DIRTY);
+                EquipmentStateMachine.canPerform(
+                        StatusAction.START_USE,
+                        EquipmentStatus.DIRTY
+                );
 
         assertFalse(result);
     }
@@ -38,7 +38,7 @@ class EquipmentStateMachineTest {
 
         EquipmentStatus result =
                 EquipmentStateMachine
-                        .TARGET_STATUS
+                        .TARGET_STATUSES
                         .get(StatusAction.START_USE);
 
         assertEquals(
@@ -48,12 +48,12 @@ class EquipmentStateMachineTest {
     }
 
     @Test
-    void completeMaintenance_shouldMapToAvailable() {
+    void returnToAvailable_shouldMapToAvailable() {
 
         EquipmentStatus result =
-                EquipmentStateMachine
-                        .TARGET_STATUS
-                        .get(StatusAction.COMPLETE_MAINTENANCE);
+                EquipmentStateMachine.getTargetStatus(
+                        StatusAction.RETURN_TO_AVAILABLE
+                );
 
         assertEquals(
                 EquipmentStatus.AVAILABLE,

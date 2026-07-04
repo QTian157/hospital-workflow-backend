@@ -19,7 +19,7 @@ public class UserAccount {
     private UserRole userRole;
 
 //    @OneToOne(cascade = CascadeType.ALL): delete account not equal delete person
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="person_id")
     private Person person;
 

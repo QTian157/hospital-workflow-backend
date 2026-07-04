@@ -20,7 +20,9 @@ public class Equipment {
     @Enumerated(EnumType.STRING)
     private EquipmentCategory category;
 
+    @Column(nullable = false, unique = true)
     private String assetTag;
+    @Column(nullable = false, unique = true)
     private String serialNumber;
 
     @Enumerated(EnumType.STRING) // 把 enum 以字符串形式存进数据库

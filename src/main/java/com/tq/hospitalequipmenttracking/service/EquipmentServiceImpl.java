@@ -12,7 +12,6 @@ import com.tq.hospitalequipmenttracking.repository.*;
 import com.tq.hospitalequipmenttracking.spec.EquipmentSpecification;
 import com.tq.hospitalequipmenttracking.validation.EquipmentMoveValidator;
 import com.tq.hospitalequipmenttracking.validation.EquipmentSearchRequestValidator;
-import com.tq.hospitalequipmenttracking.validation.EquipmentStatusTransitionValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
@@ -112,28 +110,28 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional
-    public EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request){
-
-        Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
-
-        EquipmentStatus curStatus = equipment.getStatus();
-        EquipmentStatus newStatus = request.getNewStatus();
-
-        if (!EquipmentStatusTransitionValidator.isValidTransition(curStatus, newStatus)) {
-            throw new BadRequestException(
-                    "Invalid status transition from " + curStatus
-                            + " to " + newStatus
-                            + ". Allowed next statuses: "
-                            + EquipmentStatusTransitionValidator.getAllowedNextStatuses(curStatus)
-            );
-        }
-        equipment.setStatus(newStatus);
-        Equipment updateEquipment = equipmentRepository.save(equipment);
-        return mapToResponse(updateEquipment);
-    }
+//    @Override
+//    @Transactional
+//    public EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request){
+//
+//        Equipment equipment = equipmentRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
+//
+//        EquipmentStatus curStatus = equipment.getStatus();
+//        EquipmentStatus newStatus = request.getNewStatus();
+//
+//        if (!EquipmentStatusTransitionValidator.isValidTransition(curStatus, newStatus)) {
+//            throw new BadRequestException(
+//                    "Invalid status transition from " + curStatus
+//                            + " to " + newStatus
+//                            + ". Allowed next statuses: "
+//                            + EquipmentStatusTransitionValidator.getAllowedNextStatuses(curStatus)
+//            );
+//        }
+//        equipment.setStatus(newStatus);
+//        Equipment updateEquipment = equipmentRepository.save(equipment);
+//        return mapToResponse(updateEquipment);
+//    }
 
     @Override
     public EquipmentResponse getEquipmentById(Long id){
@@ -208,7 +206,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         // 4. Business rules
         EquipmentMoveValidator.validateMoveableStatus(equipment);
-        EquipmentMoveValidator.validateMobility(equipment, fromRoom, toRoom);
+        EquipmentMoveValidator.validateMobility(equipment, fromRoom, toRoom, fromDepartment, toDepartment);
         EquipmentMoveValidator.validateDepartmentCompatibility(equipment, toDepartment);
 
         equipment.setCurrentRoom(toRoom);
@@ -265,11 +263,13 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         EquipmentStatus currentStatus = equipment.getStatus();
 
-        Set<EquipmentStatus> allowedStatuses =  EquipmentStateMachine.ALLOW_TRANSITIONS.get(action);
-        if (allowedStatuses == null || !allowedStatuses.contains(currentStatus)) {
-            throw new BadRequestException("Cannot perform action " + action + " when equipment status is " + currentStatus);
+        if (!EquipmentStateMachine.canPerform(action, currentStatus)) {
+            throw new BadRequestException(
+                    "Cannot perform action " + action +
+                            " when equipment status is " + currentStatus
+            );
         }
-        EquipmentStatus newStatus =  EquipmentStateMachine.TARGET_STATUS.get(action);
+        EquipmentStatus newStatus = EquipmentStateMachine.getTargetStatus(action);
         if (newStatus == null) {
             throw new BadRequestException("No target status defined for action: " + action);
         }
@@ -339,25 +339,25 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
     }
 
-    @Override
-    @Transactional
-    public EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request) {
-        return changeStatus(
-                id,
-                StatusAction.SEND_TO_MAINTENANCE,
-                request != null ? request.getNotes() : null
-        );
-    }
+//    @Override
+//    @Transactional
+//    public EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request) {
+//        return changeStatus(
+//                id,
+//                StatusAction.SEND_TO_MAINTENANCE,
+//                request != null ? request.getNotes() : null
+//        );
+//    }
 
-    @Override
-    @Transactional
-    public EquipmentResponse completeMaintenance(Long id, StatusActionRequest request) {
-        return changeStatus(
-                id,
-                StatusAction.COMPLETE_MAINTENANCE,
-                request != null ? request.getNotes() : null
-        );
-    }
+//    @Override
+//    @Transactional
+//    public EquipmentResponse completeMaintenance(Long id, StatusActionRequest request) {
+//        return changeStatus(
+//                id,
+//                StatusAction.COMPLETE_MAINTENANCE,
+//                request != null ? request.getNotes() : null
+//        );
+//    }
 
     @Override
     public List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(Long equipmentId){
@@ -445,11 +445,24 @@ public class EquipmentServiceImpl implements EquipmentService {
             throw new BadRequestException("Cannot assign equipment: the selected staff member is inactive or no longer available.");
         }
     };
-    private void validateEquipmentCanBeAssigned(Equipment equipment){
-        if (equipment.getStatus() == EquipmentStatus.UNDER_MAINTENANCE) {
-            throw new  BadRequestException("Equipment in current status cannot be assigned.");
+
+    // updated
+    private static final Set<EquipmentStatus> ASSIGN_ALLOWED_STATUSES =
+            EnumSet.of(
+                    EquipmentStatus.AVAILABLE,
+                    EquipmentStatus.DIRTY,
+                    EquipmentStatus.STERILE
+            );
+
+    private void validateEquipmentCanBeAssigned(Equipment equipment) {
+        if (!ASSIGN_ALLOWED_STATUSES.contains(equipment.getStatus())) {
+            throw new BadRequestException(
+                    "Equipment cannot be assigned when status is "
+                            + equipment.getStatus()
+            );
         }
-    };
+    }
+
     private void validateEquipmentNotAlreadyAssigned(Equipment equipment){
         if (equipment.getAssignedPerson() != null) {
             throw new  BadRequestException("Equipment is already assigned. Unassign it first.");

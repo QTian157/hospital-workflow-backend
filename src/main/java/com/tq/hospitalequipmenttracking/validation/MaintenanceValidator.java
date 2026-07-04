@@ -40,6 +40,10 @@ public final class MaintenanceValidator {
 
     public static void validateCanCancel(MaintenanceRecord record) {
 
+        if (record == null) {
+            throw new BadRequestException("Maintenance record is required.");
+        }
+
         if ( record.getStatus() != MaintenanceStatus.SCHEDULED && record.getStatus() != MaintenanceStatus.IN_PROGRESS) {
             throw new BadRequestException("Only scheduled or in-progress maintenance can be canceled.");
         }

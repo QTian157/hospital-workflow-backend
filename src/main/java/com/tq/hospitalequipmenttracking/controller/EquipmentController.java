@@ -90,15 +90,15 @@ public class EquipmentController {
 
     // 这里用DTO:UpdateStatusRequest request
     // Only update basic info: name, type, category, assetTag, serialNumber, mobile. Not touch: room, department, status, assignTo
-    @PutMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<ApiResponse<EquipmentResponse>> updateEquipmentStatus(@PathVariable Long id, @Valid @RequestBody UpdateEquipmentStatusRequest request) {
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Equipment status updated successfully",
-                        equipmentService.updateEquipmentStatus(id,request))
-        );
-    }
+//    @PutMapping("/{id}/status")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    public ResponseEntity<ApiResponse<EquipmentResponse>> updateEquipmentStatus(@PathVariable Long id, @Valid @RequestBody UpdateEquipmentStatusRequest request) {
+//        return ResponseEntity.ok(
+//                ApiResponse.success(
+//                        "Equipment status updated successfully",
+//                        equipmentService.updateEquipmentStatus(id,request))
+//        );
+//    }
     // Only changes for department, room and write MovementHistory
     @PostMapping("/{id}/move")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
@@ -191,35 +191,35 @@ public class EquipmentController {
         );
     }
 
-    @PostMapping("/{id}/send-to-maintenance")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<ApiResponse<EquipmentResponse>> sendToMaintenance(
-            @PathVariable Long id,
-            @RequestBody(required = false) StatusActionRequest request
-    ) {
-        EquipmentResponse response = equipmentService.sendToMaintenance(id, request);
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Equipment sent to maintenance successfully",
-                        response
-                )
-        );
-    }
-
-    @PostMapping("/{id}/complete-maintenance")
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
-    public ResponseEntity<ApiResponse<EquipmentResponse>> completeMaintenance(
-            @PathVariable Long id,
-            @RequestBody(required = false) StatusActionRequest request
-    ) {
-        EquipmentResponse response = equipmentService.completeMaintenance(id, request);
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Equipment maintenance completed successfully",
-                        response
-                )
-        );
-    }
+//    @PostMapping("/{id}/send-to-maintenance")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    public ResponseEntity<ApiResponse<EquipmentResponse>> sendToMaintenance(
+//            @PathVariable Long id,
+//            @RequestBody(required = false) StatusActionRequest request
+//    ) {
+//        EquipmentResponse response = equipmentService.sendToMaintenance(id, request);
+//        return ResponseEntity.ok(
+//                ApiResponse.success(
+//                        "Equipment sent to maintenance successfully",
+//                        response
+//                )
+//        );
+//    }
+//
+//    @PostMapping("/{id}/complete-maintenance")
+//    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+//    public ResponseEntity<ApiResponse<EquipmentResponse>> completeMaintenance(
+//            @PathVariable Long id,
+//            @RequestBody(required = false) StatusActionRequest request
+//    ) {
+//        EquipmentResponse response = equipmentService.completeMaintenance(id, request);
+//        return ResponseEntity.ok(
+//                ApiResponse.success(
+//                        "Equipment maintenance completed successfully",
+//                        response
+//                )
+//        );
+//    }
 
     @GetMapping("/{id}/status-history")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")

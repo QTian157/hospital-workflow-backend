@@ -15,7 +15,7 @@ public interface EquipmentService {
     List<EquipmentResponse> getAllEquipments();
     EquipmentResponse addEquipment(CreateEquipmentRequest equipment);
     List<EquipmentResponse> getEquipmentByStatus(EquipmentStatus status);
-    EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request);
+//    EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request);
     EquipmentResponse getEquipmentById(Long id);
 
     EquipmentResponse moveEquipment(Long equipmentId, MoveEquipmentRequest request);
@@ -26,8 +26,8 @@ public interface EquipmentService {
     EquipmentResponse startCleaning(Long id, StatusActionRequest request);
     EquipmentResponse markSterile(Long id, StatusActionRequest request);
     EquipmentResponse returnToAvailable(Long id, StatusActionRequest request);
-    EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request);
-    EquipmentResponse completeMaintenance(Long id, StatusActionRequest request);
+//    EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request);
+//    EquipmentResponse completeMaintenance(Long id, StatusActionRequest request);
 
     List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(Long equipmentId);
 

@@ -71,10 +71,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     public MaintenanceRecordResponse startMaintenance(Long recordId, MaintenanceActionRequest request){
         MaintenanceRecord record = findMaintenanceRecordByIdOrThrow(recordId);
 
+        String performedBy = request != null ? request.getPerformedBy() : null;
+        String notes = request != null ? request.getNotes() : null;
+
         MaintenanceValidator.validateCanStart(record);
         record.setStatus(MaintenanceStatus.IN_PROGRESS);
-        record.setPerformedBy(request.getPerformedBy());
-        record.setNotes(request.getNotes());
+        record.setPerformedBy(performedBy);
+        record.setNotes(notes);
         record.setUpdatedAt(LocalDateTime.now());
 
         Equipment equipment = record.getEquipment();
@@ -93,10 +96,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         MaintenanceValidator.validateCanComplete(record);
 
+        String performedBy = request != null ? request.getPerformedBy() : null;
+        String notes = request != null ? request.getNotes() : null;
+
         record.setStatus(MaintenanceStatus.COMPLETED);
         record.setCompletedDate(LocalDateTime.now());
-        record.setPerformedBy(request.getPerformedBy());
-        record.setNotes(request.getNotes());
+        record.setPerformedBy(performedBy);
+        record.setNotes(notes);
         record.setUpdatedAt(LocalDateTime.now());
 
         Equipment equipment = record.getEquipment();
@@ -116,10 +122,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
         MaintenanceValidator.validateCanCancel(record);
 
         MaintenanceStatus currentStatus = record.getStatus();
+        String performedBy = request != null ? request.getPerformedBy() : null;
+        String notes = request != null ? request.getNotes() : null;
 
         record.setStatus(MaintenanceStatus.CANCELED);
-        record.setPerformedBy(request.getPerformedBy());
-        record.setNotes(request.getNotes());
+        record.setPerformedBy(performedBy);
+        record.setNotes(notes);
         record.setUpdatedAt(LocalDateTime.now());
         // 1. maintenance record：CREATED -> SCHEDULED → CANCELED: equipmentStatus: AVAILABLE, no equipmentStatus change
         // 2. maintenance record：CREATED -> SCHEDULED -> start → IN_PROGRESS -> CANCELED: equipmentStatus: UNDER_MAINTENANCE, equipmentStatus changed from UNDER_MAINTENANCE to AVAILABLE

@@ -15,7 +15,7 @@ public class Person {
     private String lastName;
 
     @Column(unique = true)
-    private String EmployeeId;
+    private String employeeId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,7 +40,7 @@ public class Person {
     }
 
     public String getEmployeeId() {
-        return EmployeeId;
+        return employeeId;
     }
 
     public PersonRole getRole() {
@@ -64,7 +64,7 @@ public class Person {
     }
 
     public void setEmployeeId(String employeeId) {
-        EmployeeId = employeeId;
+        employeeId = employeeId;
     }
 
     public void setRole(PersonRole role) {

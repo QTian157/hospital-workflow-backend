@@ -99,16 +99,23 @@ public final class EquipmentMoveValidator {
 
     // I also used the mobile flag as an operational constraint.
     // Fixed equipment should not be movable across rooms, while mobile equipment such as wheelchairs or infusion pumps can be relocated.
-    public static void validateMobility(Equipment equipment, Room fromRoom, Room toRoom) {
+    public static void validateMobility(Equipment equipment, Room fromRoom, Room toRoom, Department fromDepartment, Department toDepartment) {
         if (equipment == null) {
             throw new BadRequestException("Equipment is required");
         }
 
-        if (!equipment.isMobile()
-                && fromRoom != null
-                && toRoom != null
-                && !fromRoom.getId().equals(toRoom.getId())) {
-            throw new BadRequestException("Non-mobile equipment cannot be moved between rooms");
+        if (equipment.isMobile()) {
+            return;
+        }
+
+        boolean roomChanged =
+                fromRoom != null && toRoom != null && !fromRoom.getId().equals(toRoom.getId());
+
+        boolean departmentChanged =
+                fromDepartment != null && toDepartment != null && !fromDepartment.getId().equals(toDepartment.getId());
+
+        if (roomChanged || departmentChanged) {
+            throw new BadRequestException("Non-mobile equipment cannot be moved between rooms or departments");
         }
     }
 

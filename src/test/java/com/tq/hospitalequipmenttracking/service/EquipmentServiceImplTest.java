@@ -110,65 +110,6 @@ class EquipmentServiceImplTest {
         assertEquals("OR-1", response.getRoomName());
     }
 
-    // updateEquipmentStatus
-    @Test
-    void updateEquipmentStatus_shouldThrowException_whenTransitionInvalid() {
-
-        Equipment equipment = new Equipment();
-
-        equipment.setStatus(
-                EquipmentStatus.LOST
-        );
-
-        UpdateEquipmentStatusRequest request = new UpdateEquipmentStatusRequest();
-
-        request.setNewStatus(EquipmentStatus.AVAILABLE);
-
-        when(equipmentRepository.findById(1L))
-                .thenReturn(Optional.of(equipment));
-
-        assertThrows(
-                BadRequestException.class,
-                () -> equipmentService.updateEquipmentStatus(
-                        1L,
-                        request
-                )
-        );
-    }
-    @Test
-    void updateEquipmentStatus_shouldUpdateSuccessfully() {
-
-        Equipment equipment = new Equipment();
-
-        equipment.setStatus(
-                EquipmentStatus.AVAILABLE
-        );
-
-        UpdateEquipmentStatusRequest request =
-                new UpdateEquipmentStatusRequest();
-
-        request.setNewStatus(
-                EquipmentStatus.IN_USE
-        );
-
-        when(equipmentRepository.findById(1L))
-                .thenReturn(Optional.of(equipment));
-
-        when(equipmentRepository.save(any()))
-                .thenReturn(equipment);
-
-        EquipmentResponse response =
-                equipmentService.updateEquipmentStatus(
-                        1L,
-                        request
-                );
-
-        assertEquals(
-                EquipmentStatus.IN_USE,
-                response.getStatus()
-        );
-    }
-
     // assign
     @Test
     void assignEquipment_shouldAssignSuccessfully() {
