@@ -36,4 +36,4 @@
 ✔ MySQL & H2 Profiles
 
 ## System Architecture
-![System Architecture](docs/architecture.png)
+![System Architecture](docs/Architecture.png)
