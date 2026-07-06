@@ -48,23 +48,36 @@
 ## Project Structure
 ```text
 src
-├── config                               # Spring Security & JWT configuration
-│   ├── SecurityConfig                   # REST API endpoints
+├── config                            
+│   ├── SecurityConfig                  
 ├── controller
 │   ├── AuthController
 │   ├── EquipmentController
 │   └── MaintenanceRecordController
-├── dto                                  # Request/Response objects
+├── dto                                 
 │   ├── request
 │   └── response
-├── exception                            # Global exception handling
-├── model                                # JPA entities
-├── repository                           # Spring Data JPA repositories
-├── security                             # JWT filters & authentication
-├── service                              # Business logic
-├── validation                           # Business rule validation
-└── spec                                 # Dynamic query specifications
+├── exception                            
+├── model                               
+├── repository                           
+├── security                           
+├── service                             
+├── validation                         
+└── spec                                 
 ```
+| Package    | Description                         |
+| ---------- | ----------------------------------- |
+| config     | Spring Security & JWT configuration |
+| controller | REST API endpoints                  |
+| dto        | Request/Response objects            |
+| exception  | Global exception handling           |
+| model      | JPA entities                        |
+| repository | Spring Data JPA repositories        |
+| security   | JWT authentication & filters        |
+| service    | Business logic                      |
+| validation | Business rule validation            |
+| spec       | Dynamic query specifications        |
+
 ## API
 | Method | Endpoint                        | Description           |
 | ------ | ------------------------------- | --------------------- |
