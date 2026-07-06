@@ -39,12 +39,23 @@
 <p align="center">
   <img src="docs/Architecture.png" width="450">
 </p>
-![System Architecture](docs/Architecture.png)
 
 ## Hospital Workflow & Architecture
 ![Hospital Workflow & Architecture](docs/LifeSafety.png)
 
 ## ER Diagram
-## JWT Aythentication FLow
+## Project Structure
+## API
+| Method | Endpoint                        | Description           |
+| ------ | ------------------------------- | --------------------- |
+| POST   | `/api/auth/login`               | User login            |
+| POST   | `/api/auth/register`            | Register user         |
+| GET    | `/api/equipment`                | Get all equipment     |
+| POST   | `/api/equipment`                | Create equipment      |
+| POST   | `/api/equipment/{id}/move`      | Move equipment        |
+| POST   | `/api/equipment/{id}/assign`    | Assign equipment      |
+| POST   | `/api/equipment/{id}/start-use` | Start equipment usage |
+![swagger-API-overview](docs/swagger-API-overview.png)
+![swagger-jwt-login](docs/swagger-jwt-login.png)
 
 
