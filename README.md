@@ -55,7 +55,12 @@
 | POST   | `/api/equipment/{id}/move`      | Move equipment        |
 | POST   | `/api/equipment/{id}/assign`    | Assign equipment      |
 | POST   | `/api/equipment/{id}/start-use` | Start equipment usage |
-![swagger-API-overview](docs/swagger-API-overview.png)
-![swagger-jwt-login](docs/swagger-jwt-login.png)
+
+<p align="center">
+  <img src="docs/swagger-API-overview.jpg" width="450">
+</p>
+<p align="center">
+  <img src="docs/swagger-jwt-login.png" width="450">
+</p>
 
 
