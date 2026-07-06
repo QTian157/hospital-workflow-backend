@@ -57,7 +57,7 @@
 | POST   | `/api/equipment/{id}/start-use` | Start equipment usage |
 
 
-![swagger-API-overview](docs/swagger-API-overview.png)
+![swagger-API-overview](docs/swagger-API-overview.PNG)
 ![swagger-jwt-login](docs/swagger-jwt-login.png)
 
 
