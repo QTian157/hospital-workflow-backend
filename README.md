@@ -98,6 +98,7 @@ src
 ## Design Decisions
 
 ***Why separate history tables?***
+
 Historical records are stored independently from the Equipment entity to avoid loading unnecessary historical data while preserving a complete audit trail.
 
 ***Why use a State Machine?***
