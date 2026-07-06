@@ -181,12 +181,8 @@ The state machine centralizes all equipment status transitions, ensuring only va
 
 Potential future enhancements:
 
-- Docker deployment
-
-- Redis caching
-
-- Barcode / QR code support
-
-- CI/CD pipeline
-
-- Notification service
+- Barcode / QR code scanning for faster equipment identification.
+- Email notifications for maintenance reminders and status updates.
+- Docker support for simplified deployment.
+- CI/CD pipeline with GitHub Actions.
+- Redis caching to improve system performance.
