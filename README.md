@@ -46,6 +46,7 @@
 ## ER Diagram
 
 ## Project Structure
+```text
 src
 ├── config                               # Spring Security & JWT configuration
 │   ├── SecurityConfig                   # REST API endpoints
@@ -63,7 +64,7 @@ src
 ├── service                              # Business logic
 ├── validation                           # Business rule validation
 └── spec                                 # Dynamic query specifications
-
+```
 ## API
 | Method | Endpoint                        | Description           |
 | ------ | ------------------------------- | --------------------- |
