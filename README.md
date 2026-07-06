@@ -44,7 +44,26 @@
 ![Hospital Workflow & Architecture](docs/LifeSafety.png)
 
 ## ER Diagram
+
 ## Project Structure
+src
+├── config                               # Spring Security & JWT configuration
+│   ├── SecurityConfig                   # REST API endpoints
+├── controller
+│   ├── AuthController
+│   ├── EquipmentController
+│   └── MaintenanceRecordController
+├── dto                                  # Request/Response objects
+│   ├── request
+│   └── response
+├── exception                            # Global exception handling
+├── model                                # JPA entities
+├── repository                           # Spring Data JPA repositories
+├── security                             # JWT filters & authentication
+├── service                              # Business logic
+├── validation                           # Business rule validation
+└── spec                                 # Dynamic query specifications
+
 ## API
 | Method | Endpoint                        | Description           |
 | ------ | ------------------------------- | --------------------- |
