@@ -13,11 +13,12 @@
 
 ## Project Overview
 
-Hospital equipment constantly moves between departments, rooms, and staff throughout its lifecycle. Tracking equipment manually often leads to misplaced assets, incomplete maintenance records, and missing sterilization history.
+Hospital equipment constantly moves between departments, rooms, and staff throughout its lifecycle. Managing these assets manually can lead to misplaced equipment, incomplete maintenance records, inconsistent sterilization tracking, and limited operational visibility.
 
-This project provides a secure backend system for managing hospital equipment through its entire lifecycle, including movement tracking, staff assignment, maintenance management, and complete audit history.
+This project is a Spring Boot RESTful backend application that manages hospital equipment throughout its entire lifecycle. It supports equipment movement, staff assignment, status transitions, maintenance management, authentication, and complete audit history while enforcing business rules through a structured workflow.
 
-This project was designed to simulate a real-world hospital equipment management system rather than a simple CRUD application, with a focus on business workflows, auditability, and maintainable backend architecture.
+Rather than being a simple CRUD application, this project was designed to simulate a real-world hospital equipment management system with an emphasis on business workflows, data integrity, auditability, and maintainable backend architecture.
+
 ## Highlights
 
 ✔ Equipment Lifecycle State Machine
