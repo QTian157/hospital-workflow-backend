@@ -44,6 +44,8 @@
 ![Hospital Workflow & Architecture](docs/LifeSafety.png)
 
 ## ER Diagram
+![Hospital Workflow & Architecture](docs/ER_diagram.png)
+
 
 ## Project Structure
 ```text
@@ -93,4 +95,20 @@ src
 ![swagger-API-overview](docs/swagger-API-overview.PNG)
 ![swagger-jwt-login](docs/swagger-jwt-login.png)
 
+## Design Decisions
+
+***Why separate history tables?***
+Historical records are stored independently from the Equipment entity to avoid loading unnecessary historical data while preserving a complete audit trail.
+
+***Why use a State Machine?***
+
+Equipment status transitions follow strict business rules. Centralizing transition logic prevents invalid state changes and simplifies future maintenance.
+
+***Why separate Maintenance Records?***
+
+Maintenance is modeled as an independent business process rather than an equipment status, allowing detailed tracking of maintenance lifecycle and outcomes.
+
+***Why DTOs?***
+
+DTOs separate API contracts from persistence models, reducing coupling and improving security.
 
