@@ -36,6 +36,9 @@
 ✔ MySQL & H2 Profiles
 
 ## System Architecture
+<p align="center">
+  <img src="docs/Architecture.png" width="450">
+</p>
 ![System Architecture](docs/Architecture.png)
 
 ## Hospital Workflow & Architecture
