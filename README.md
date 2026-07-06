@@ -37,3 +37,11 @@
 
 ## System Architecture
 ![System Architecture](docs/Architecture.png)
+
+## Hospital Workflow & Architecture
+![Hospital Workflow & Architecture](docs/LifeSafety.png)
+
+## ER Diagram
+## JWT Aythentication FLow
+
+
