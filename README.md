@@ -11,29 +11,57 @@
 
 ---
 
-## Highlights
+## Project Overview
 
-✔ JWT Authentication & Role-Based Authorization
+Hospital equipment constantly moves between departments, rooms, and staff throughout its lifecycle. Tracking equipment manually often leads to misplaced assets, incomplete maintenance records, and missing sterilization history.
+
+This project provides a secure backend system for managing hospital equipment through its entire lifecycle, including movement tracking, staff assignment, maintenance management, and complete audit history.
+
+This project was designed to simulate a real-world hospital equipment management system rather than a simple CRUD application, with a focus on business workflows, auditability, and maintainable backend architecture.
+## Highlights
 
 ✔ Equipment Lifecycle State Machine
 
-✔ Maintenance Workflow
+✔ Complete Audit Trail
+
+✔ Business Rule Validation
 
 ✔ Equipment Movement Tracking
 
-✔ Staff Assignment
+✔ Staff Assignment Workflow
 
-✔ Complete Audit History
+✔ Maintenance Workflow
 
-✔ RESTful API
+✔ JWT Authentication
 
-✔ Spring Security
+✔ RESTful APIs
 
-✔ JPA / Hibernate
+## Technology Stack
 
-✔ Unit Testing
+Backend
 
-✔ MySQL & H2 Profiles
+- Java 21
+- Spring Boot
+- Spring Security
+- Spring Data JPA
+- Hibernate
+- JWT
+
+Database
+
+- MySQL
+- H2
+
+Testing
+
+- JUnit5
+- Mockito
+
+Tools
+
+- Maven
+- Swagger
+- Postman
 
 ## System Architecture
 <p align="center">
@@ -43,8 +71,8 @@
 ## Hospital Workflow & Architecture
 ![Hospital Workflow & Architecture](docs/LifeSafety.png)
 
-## ER Diagram
-![Hospital Workflow & Architecture](docs/ER_diagram.png)
+## Core Domain Model
+![Hospital Workflow & Architecture](docs/Core_Domain_model.png)
 
 
 ## Project Structure
@@ -67,18 +95,18 @@ src
 ├── validation                         
 └── spec                                 
 ```
-| Package    | Description                         |
-| ---------- | ----------------------------------- |
-| config     | Spring Security & JWT configuration |
-| controller | REST API endpoints                  |
-| dto        | Request/Response objects            |
-| exception  | Global exception handling           |
-| model      | JPA entities                        |
-| repository | Spring Data JPA repositories        |
-| security   | JWT authentication & filters        |
-| service    | Business logic                      |
-| validation | Business rule validation            |
-| spec       | Dynamic query specifications        |
+| Package    | Description                                  |
+| ---------- |----------------------------------------------|
+| config     | Spring Security & JWT configuration          |
+| controller | REST API endpoints                           |
+| dto        | Request/Response objects                     |
+| exception  | Global exception handling                    |
+| model      | JPA entities                                 |
+| repository | Spring Data JPA repositories                 |
+| security   | Authentication, JWT filter and authorization |
+| service    | Business logic                               |
+| validation | Business rule validation                     |
+| spec       | Dynamic query specifications                 |
 
 ## API
 | Method | Endpoint                        | Description           |
@@ -91,9 +119,36 @@ src
 | POST   | `/api/equipment/{id}/assign`    | Assign equipment      |
 | POST   | `/api/equipment/{id}/start-use` | Start equipment usage |
 
+Additional endpoints are available for:
+
+• Status History
+• Movement History
+• Assignment History
+• Maintenance Records
+
 
 ![swagger-API-overview](docs/swagger-API-overview.PNG)
 ![swagger-jwt-login](docs/swagger-jwt-login.png)
+
+## Running the Project
+
+Clone
+
+```bash
+git clone ...
+```
+
+Run
+
+```bash
+mvn spring-boot:run
+```
+
+Swagger
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
 ## Design Decisions
 
@@ -113,3 +168,25 @@ Maintenance is modeled as an independent business process rather than an equipme
 
 DTOs separate API contracts from persistence models, reducing coupling and improving security.
 
+***Why use DTOs?***
+
+DTOs isolate API contracts from persistence models, preventing entity exposure and allowing the API to evolve independently of the database schema.
+
+***State Machine***
+
+The state machine centralizes all equipment status transitions, ensuring only valid lifecycle changes are allowed while keeping business rules out of controllers.
+
+
+## Future Improvements
+
+Potential future enhancements:
+
+- Docker deployment
+
+- Redis caching
+
+- Barcode / QR code support
+
+- CI/CD pipeline
+
+- Notification service
