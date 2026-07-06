@@ -50,8 +50,8 @@ Backend
 
 Database
 
-- MySQL
-- H2
+- MySQL (Production Profile)
+- H2 In-Memory Database (Demo Profile)
 
 Testing
 
@@ -149,6 +149,26 @@ Swagger
 
 ```
 http://localhost:8080/swagger-ui/index.html
+```
+
+## Runtime Profiles
+
+The application supports multiple Spring Boot profiles:
+
+| Profile | Database | Purpose |
+|---------|----------|---------|
+| `mysql` | MySQL | Production-like environment |
+| `demo` | H2 In-Memory | Local demo and testing |
+
+Switch profiles using:
+
+[//]: # (```bash)
+
+[//]: # (mvn spring-boot:run -Dspring-boot.run.profiles=demo)
+
+[//]: # (```)
+```bash
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=demo"
 ```
 
 ## Design Decisions
