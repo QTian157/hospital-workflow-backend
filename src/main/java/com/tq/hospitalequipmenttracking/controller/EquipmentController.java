@@ -77,7 +77,7 @@ public class EquipmentController {
         );
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
 //    public EquipmentResponse getEquipmentById(@PathVariable Long id) {
 //        return equipmentService.getEquipmentById(id);

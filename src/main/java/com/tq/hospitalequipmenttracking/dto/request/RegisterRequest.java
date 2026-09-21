@@ -10,9 +10,9 @@ public class RegisterRequest {
     private String username;
     @NotBlank(message = "password cannot be null")
     private String password;
-    @NotNull(message = "userRole cannot be null")
-    private UserRole userRole;
-    private Long personId;
+//    @NotNull(message = "userRole cannot be null")
+//    private UserRole userRole;
+//    private Long personId;
 
     public String getUsername() {
         return username;
@@ -22,13 +22,13 @@ public class RegisterRequest {
         return password;
     }
 
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public Long getPersonId() {
-        return personId;
-    }
+//    public UserRole getUserRole() {
+//        return userRole;
+//    }
+//
+//    public Long getPersonId() {
+//        return personId;
+//    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -38,11 +38,11 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
-    }
-
-    public void setPersonId(Long personId) {
-        this.personId = personId;
-    }
+//    public void setUserRole(UserRole userRole) {
+//        this.userRole = userRole;
+//    }
+//
+//    public void setPersonId(Long personId) {
+//        this.personId = personId;
+//    }
 }

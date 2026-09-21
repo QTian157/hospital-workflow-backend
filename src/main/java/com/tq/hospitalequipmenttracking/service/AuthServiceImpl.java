@@ -6,6 +6,7 @@ import com.tq.hospitalequipmenttracking.dto.response.AuthResponse;
 import com.tq.hospitalequipmenttracking.exception.BadRequestException;
 import com.tq.hospitalequipmenttracking.model.Person;
 import com.tq.hospitalequipmenttracking.model.UserAccount;
+import com.tq.hospitalequipmenttracking.model.UserRole;
 import com.tq.hospitalequipmenttracking.repository.PersonRepository;
 import com.tq.hospitalequipmenttracking.repository.UserRepository;
 import jdk.jshell.spi.ExecutionControl;
@@ -37,15 +38,16 @@ public class AuthServiceImpl implements AuthService {
         UserAccount user = new UserAccount();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setUserRole(request.getUserRole());
+        user.setUserRole(UserRole.STAFF);
         user.setEnabled(true);
 
-        if (request.getPersonId() != null) {
-            Person person = personRepository.findById(request.getPersonId())
-                    .orElseThrow(() -> new BadRequestException("Person id not found."));
-
-            user.setPerson(person);
-        }
+//        if (request.getPersonId() != null) {
+//            Person person = personRepository.findById(request.getPersonId())
+//                    .orElseThrow(() -> new BadRequestException("Person id not found."));
+//
+//            user.setPerson(person);
+//        }
+        user.setPerson(null);
         userRepository.save(user);
 //        return new AuthResponse("Register successful. JWT not generated yet.");
         return new AuthResponse(
