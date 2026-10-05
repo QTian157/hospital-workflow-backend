@@ -36,4 +36,5 @@ public interface EquipmentService {
     List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(Long equipmentId);
 
     Page<EquipmentResponse> searchEquipment(EquipmentSearchRequest request);
+    EquipmentResponse updateEquipment(Long id, UpdateEquipmentRequest request);
 }

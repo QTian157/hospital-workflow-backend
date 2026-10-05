@@ -535,4 +535,20 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .map(this::mapToResponse);
     }
 
+    @Override
+    public EquipmentResponse updateEquipment(Long id, UpdateEquipmentRequest request){
+        Equipment updatedEquipment  = equipmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        updatedEquipment.setName(request.getName());
+        updatedEquipment.setType(request.getType());
+        updatedEquipment.setCategory(request.getCategory());
+        updatedEquipment.setAssetTag(request.getAssetTag());
+        updatedEquipment.setSerialNumber(request.getSerialNumber());
+        updatedEquipment.setMobile(request.getMobile());
+        Equipment savedEquipment = equipmentRepository.save(updatedEquipment);
+
+        return mapToResponse(savedEquipment);
+    }
+
 }

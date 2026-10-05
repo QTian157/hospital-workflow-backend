@@ -348,4 +348,15 @@ public class EquipmentController {
         );
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<ApiResponse<EquipmentResponse>> updateEquipment(
+            @PathVariable Long id,
+            @RequestBody UpdateEquipmentRequest request) {
+
+        EquipmentResponse updatedEquipment = equipmentService.updateEquipment(id, request);
+
+        return ResponseEntity.ok(ApiResponse.success(updatedEquipment));
+
+    }
+
 }
