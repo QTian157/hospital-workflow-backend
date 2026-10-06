@@ -38,4 +38,8 @@ public class MoveEquipmentRequest {
     public void setNotes(String note) {
         this.notes = note;
     }
+
+    public void setToDepartmentId(Long toDepartmentId) {
+        this.toDepartmentId = toDepartmentId;
+    }
 }
