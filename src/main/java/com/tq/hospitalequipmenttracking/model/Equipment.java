@@ -2,18 +2,48 @@ package com.tq.hospitalequipmenttracking.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "equipments")
 public class Equipment {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String type;
-    private String location;
+
+    @Enumerated(EnumType.STRING)
+    private EquipmentType type;
+
+    @Enumerated(EnumType.STRING)
+    private EquipmentCategory category;
+
+    @Column(nullable = false, unique = true)
+    private String assetTag;
+    @Column(nullable = false, unique = true)
+    private String serialNumber;
 
     @Enumerated(EnumType.STRING) // 把 enum 以字符串形式存进数据库
     private EquipmentStatus status;
+
+    private boolean mobile;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_room_id")
+    private Room currentRoom;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    private LocalDate purchaseDate;
+    private LocalDate lastMaintenanceDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Person assignedPerson;
+    private LocalDateTime assignedAt;
+
 
     // getter & setter
     public Long getId() {
@@ -28,20 +58,27 @@ public class Equipment {
         this.name = name;
     }
 
-    public String getType() {
+    public EquipmentType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EquipmentType type) {
         this.type = type;
     }
 
-    public String getLocation() {
-        return location;
+    public Room getCurrentRoom() {
+        return currentRoom;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setCurrentRoom(Room currentRoom) {
+        this.currentRoom = currentRoom;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public EquipmentStatus getStatus() {
@@ -50,5 +87,60 @@ public class Equipment {
 
     public void setStatus(EquipmentStatus status) {
         this.status = status;
+    }
+
+    public boolean isMobile() {
+        return mobile;
+    }
+    public void setMobile(boolean mobile) {
+        this.mobile = mobile;
+    }
+
+    public EquipmentCategory  getCategory() {
+        return category;
+    }
+    public void setCategory(EquipmentCategory category) {
+        this.category = category;
+    }
+
+    public LocalDate getPurchaseDate() {
+        return purchaseDate;
+    }
+    public void setPurchaseDate(LocalDate purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+    public LocalDate getLastMaintenanceDate() {
+        return lastMaintenanceDate;
+    }
+    public void setLastMaintenanceDate(LocalDate lastMaintenanceDate) {
+        this.lastMaintenanceDate = lastMaintenanceDate;
+    }
+    public String getAssetTag() {
+        return assetTag;
+    }
+    public  void setAssetTag(String assetTag) {
+        this.assetTag = assetTag;
+    }
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public Person getAssignedPerson() {
+        return assignedPerson;
+    }
+
+    public LocalDateTime getAssignedAt() {
+        return assignedAt;
+    }
+
+    public void setAssignedPerson(Person assignedPerson) {
+        this.assignedPerson = assignedPerson;
+    }
+
+    public void setAssignedAt(LocalDateTime assignedAt) {
+        this.assignedAt = assignedAt;
     }
 }

@@ -1,92 +1,40 @@
 package com.tq.hospitalequipmenttracking.service;
 
-import com.tq.hospitalequipmenttracking.exception.BadRequestException;
-import com.tq.hospitalequipmenttracking.exception.ResourceNotFoundException;
-import com.tq.hospitalequipmenttracking.model.Equipment;
+import com.tq.hospitalequipmenttracking.dto.request.*;
+import com.tq.hospitalequipmenttracking.dto.response.EquipmentAssignmentHistoryResponse;
+import com.tq.hospitalequipmenttracking.dto.response.EquipmentResponse;
+import com.tq.hospitalequipmenttracking.dto.response.MovementHistoryResponse;
+import com.tq.hospitalequipmenttracking.dto.response.UpdateHistoryResponse;
 import com.tq.hospitalequipmenttracking.model.EquipmentStatus;
-import com.tq.hospitalequipmenttracking.repository.EquipmentRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
 
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
 
-@Service
-public class EquipmentService {
-    // 构造函数注入 repository
-    private final EquipmentRepository equipmentRepository;
+public interface EquipmentService {
+    List<EquipmentResponse> getAllEquipments();
+    EquipmentResponse addEquipment(CreateEquipmentRequest equipment);
+    List<EquipmentResponse> getEquipmentByStatus(EquipmentStatus status);
+//    EquipmentResponse updateEquipmentStatus(Long id, UpdateEquipmentStatusRequest request);
+    EquipmentResponse getEquipmentById(Long id);
 
-    public EquipmentService(EquipmentRepository equipmentRepository) {
-        this.equipmentRepository = equipmentRepository;
-    }
+    EquipmentResponse moveEquipment(Long equipmentId, MoveEquipmentRequest request);
+    List<MovementHistoryResponse> getMovementHistoryByEquipmentId(Long equipmentId);
 
-//    private static final Set<String> ALLOWED_STATUSES = Set.of("AVAILABLE", "IN_USE", "CLEANING", "MAINTENANCE");
+    EquipmentResponse startUse(Long id, StatusActionRequest request);
+    EquipmentResponse markDirty(Long id, StatusActionRequest request);
+    EquipmentResponse startCleaning(Long id, StatusActionRequest request);
+    EquipmentResponse markSterile(Long id, StatusActionRequest request);
+    EquipmentResponse returnToAvailable(Long id, StatusActionRequest request);
+//    EquipmentResponse sendToMaintenance(Long id, StatusActionRequest request);
+//    EquipmentResponse completeMaintenance(Long id, StatusActionRequest request);
 
-    public List<Equipment> getAllEquipments() {
-        return equipmentRepository.findAll();
-    }
+    List<UpdateHistoryResponse> getUpdateHistoryByEquipmentId(Long equipmentId);
 
-    public Equipment addEquipment(Equipment equipment) {
-        return equipmentRepository.save(equipment);
-    }
+    EquipmentResponse assignEquipment(Long equipmentId, AssignEquipmentRequest request);
+    EquipmentResponse unassignEquipment(Long equipmentId, AssignmentActionRequest request);
+    List<EquipmentAssignmentHistoryResponse> getAssignmentHistory(Long equipmentId);
 
-    public List<Equipment> getEquipmentByStatus(EquipmentStatus status) {
-        return equipmentRepository.findByStatus(status);
-    }
-
-    public Equipment updateStatus(Long id, EquipmentStatus newStatus){
-        if (newStatus == null) {
-            throw new BadRequestException("Status cannot be null.");
-        }
-
-        Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found with id: " + id));
-        if (equipment.getStatus().equals(newStatus)) {
-            throw new BadRequestException("Status is already " + newStatus);
-        }
-        equipment.setStatus(newStatus);
-        return equipmentRepository.save(equipment);
-    }
-
-/**
-    public Equipment updateStatus(Long id, EquipmentStatus newStatus) {
-        if (newStatus == null) {
-//            throw new IllegalArgumentException("Status cannot be null.");
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Status cannot be null."
-            );
-        }
-
-//        if (!ALLOWED_STATUSES.contains(normalizedStatus)) {
-//            throw new IllegalArgumentException("Invalid status: " + newStatus);
-//        }
-
-
-        Equipment equipment = equipmentRepository.findById(id)
-//                .orElseThrow(() -> new IllegalArgumentException("Equipment not found with id: " + id));
-
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Equipment not found with id: " + id)
-                );
-
-        if (equipment.getStatus().equals(newStatus)) {
-//            throw new IllegalArgumentException("Status is already" + newStatus);
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Status is already" + newStatus
-            );
-        }
-
-        equipment.setStatus(newStatus);
-        return equipmentRepository.save(equipment);
-    }
- */
-
-
+    Page<EquipmentResponse> searchEquipment(EquipmentSearchRequest request);
+    EquipmentResponse updateEquipment(Long id, UpdateEquipmentRequest request);
 }
