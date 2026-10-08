@@ -2,6 +2,7 @@
 
 > Enterprise-style backend application built with Spring Boot for managing hospital equipment lifecycle, movement, maintenance, and audit history.
 
+[Frontend](https://github.com/QTian157/hospital-equipment-tracking-frontend) · [Backend API](https://github.com/QTian157/hospital-workflow-backendL)
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen)
 ![MySQL](https://img.shields.io/badge/MySQL-8-orange)
