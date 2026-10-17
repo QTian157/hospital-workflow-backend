@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 //
 //@RestController
 //@RequestMapping("/api/maintenance-records")
@@ -119,6 +122,15 @@ public class MaintenanceRecordController {
 
         MaintenanceViewResponse response =
                 maintenanceService.getMaintenanceView(recordId);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/equipment/{equipId}")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF','GUEST')")
+    public ResponseEntity<ApiResponse<List<MaintenanceRecordResponse>>> getAllRecords(@PathVariable Long equipId){
+        List<MaintenanceRecordResponse> response =
+                maintenanceService.getMaintenanceRecordsByEquipmentId(equipId);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
